@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.*
+.netlify/
+uploads/
+*.log
+.DS_Store
+

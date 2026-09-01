@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sri Lanka Destinations & Interactive Travel Map | Ceylon Pathways</title>
+  <meta name="description" content="Explore top destinations in Sri Lanka: Sigiriya, Kandy, Ella, Yala, Galle, Nuwara Eliya. View regional weather, driving times, and attractions.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#1a6b4a">
+  <link rel="canonical" href="https://ceylonpathways.com/destinations.html">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ceylon Pathways">
+  <meta property="og:title" content="Sri Lanka Destinations & Interactive Travel Map">
+  <meta property="og:description" content="Explore top destinations in Sri Lanka with our interactive map. Sigiriya, Kandy, Ella, Yala, Galle, and more.">
+  <meta property="og:url" content="https://ceylonpathways.com/destinations.html">
+  <meta property="og:image" content="https://ceylonpathways.com/images/destinations/sigiriya.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sri Lanka Destinations | Ceylon Pathways">
+  <meta name="twitter:description" content="Explore top destinations in Sri Lanka with our interactive travel map.">
+  <meta name="twitter:image" content="https://ceylonpathways.com/images/destinations/sigiriya.jpg">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/typography.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/animations.css">
+  <link rel="stylesheet" href="./css/pages.css">
+  
+  <style>
+    .leaflet-popup-content-wrapper {
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      box-shadow: var(--shadow-lg);
+    }
+    .leaflet-popup-content h4 {
+      font-family: var(--font-heading);
+      color: var(--color-primary);
+      margin-bottom: 4px;
+    }
+    .dest-filter-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      background: var(--color-card);
+      border: var(--border-light);
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+    .dest-filter-btn.active, .dest-filter-btn:hover {
+      background: var(--color-primary);
+      color: #fff;
+      border-color: var(--color-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="navbar">
+    <div class="navbar__inner">
+      <a href="./index.html" class="navbar__logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        Ceylon<span>Pathways</span>
+      </a>
+
+      <nav class="navbar__links" id="nav-links">
+        <a href="./index.html" class="navbar__link" data-i18n="nav_home">Home</a>
+        <a href="./destinations.html" class="navbar__link active" data-i18n="nav_destinations">Destinations</a>
+        <a href="./packages.html" class="navbar__link" data-i18n="nav_packages">Tour Packages</a>
+        <a href="./customize.html" class="navbar__link" data-i18n="nav_customize">Build Your Trip</a>
+        <a href="./about.html" class="navbar__link" data-i18n="nav_about">About Us</a>
+        <a href="./blog.html" class="navbar__link" data-i18n="nav_blog">Travel Guides</a>
+        <a href="./contact.html" class="navbar__link" data-i18n="nav_contact">Contact</a>
+      </nav>
+
+      <div class="navbar__actions">
+        <!-- Language Switcher -->
+        <div class="navbar__currency">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <select id="lang-select" aria-label="Select Language">
+            <option value="en">EN</option>
+            <option value="de">DE</option>
+            <option value="fr">FR</option>
+            <option value="ru">RU</option>
+            <option value="zh">ZH</option>
+          </select>
+        </div>
+
+        <div class="navbar__currency">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M17 10h-7a2.5 2.5 0 0 0 0 5h4a2.5 2.5 0 0 1 0 5H7"/></svg>
+          <select id="currency-select" aria-label="Select Currency">
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="LKR">LKR (Rs)</option>
+          </select>
+        </div>
+
+        <a href="./customize.html" class="btn btn--cta btn--sm hide-mobile" data-i18n="btn_plan_custom">Plan Custom Tour</a>
+
+        <button class="navbar__toggle" id="nav-toggle" aria-label="Toggle navigation menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Page Header -->
+    <section class="page-header">
+      <div class="container">
+        <span class="section-label" style="color: var(--color-accent);">Island Guide & Interactive Map</span>
+        <h1>Explore Sri Lanka's Wonders</h1>
+        <p>Interactive travel map, driving times between key landmarks, regional seasons, and handpicked attractions to inspire your private journey.</p>
+      </div>
+    </section>
+
+    <!-- Map & Route Planner Section -->
+    <section class="section">
+      <div class="container">
+        <div class="flex justify-between items-center flex-wrap gap-md mb-lg">
+          <div>
+            <h2 style="font-size: var(--text-2xl); margin-bottom: 4px;">Interactive Destination Map</h2>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted);">Click on any pin to view travel highlights or add to custom tour builder.</p>
+          </div>
+          <div class="flex gap-xs flex-wrap" id="region-filters">
+            <button class="dest-filter-btn active" data-region="all">All Regions</button>
+            <button class="dest-filter-btn" data-region="Cultural Triangle">Cultural Triangle</button>
+            <button class="dest-filter-btn" data-region="Hill Country">Hill Country</button>
+            <button class="dest-filter-btn" data-region="Southern Coast">Southern Coast</button>
+          </div>
+        </div>
+
+        <!-- Leaflet Map Container -->
+        <div id="destinations-map" class="map-container"></div>
+
+        <!-- Driving Times Summary Card -->
+        <div class="card p-lg mb-2xl" style="padding: var(--space-lg); background: #fff;">
+          <h4 style="font-size: var(--text-md); margin-bottom: var(--space-sm); color: var(--color-primary); display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Key Driving Distances & Times (with Private Chauffeur)
+          </h4>
+          <div class="grid grid-4" style="gap: var(--space-md);">
+            <div style="background: var(--color-bg); padding: var(--space-md); border-radius: var(--radius-md);">
+              <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Airport &rarr; Sigiriya</span>
+              <strong style="font-size: var(--text-sm);">148 km (~3.5 hrs)</strong>
+            </div>
+            <div style="background: var(--color-bg); padding: var(--space-md); border-radius: var(--radius-md);">
+              <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Sigiriya &rarr; Kandy</span>
+              <strong style="font-size: var(--text-sm);">90 km (~2.5 hrs)</strong>
+            </div>
+            <div style="background: var(--color-bg); padding: var(--space-md); border-radius: var(--radius-md);">
+              <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Kandy &rarr; Ella</span>
+              <strong style="font-size: var(--text-sm);">135 km (~3.5 hrs / scenic train)</strong>
+            </div>
+            <div style="background: var(--color-bg); padding: var(--space-md); border-radius: var(--radius-md);">
+              <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Ella &rarr; Yala / Galle</span>
+              <strong style="font-size: var(--text-sm);">110 km (~2.5 hrs)</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Destinations Card Grid -->
+        <div class="grid grid-3" id="destinations-cards-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Regional Weather & Best Time to Visit Section -->
+    <section class="section section--alt">
+      <div class="container">
+        <div class="text-center mb-xl">
+          <span class="section-label">Travel Intelligence</span>
+          <h2 class="section-title">When is the Best Time to Visit?</h2>
+          <p class="section-subtitle mx-auto">Sri Lanka has two distinct monsoon seasons affecting opposite coasts, meaning there is always a sunny region year-round!</p>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="card" style="padding: var(--space-xl);">
+            <h3 style="font-size: var(--text-xl); color: var(--color-primary); margin-bottom: var(--space-sm);">South & West Coasts</h3>
+            <p style="font-size: var(--text-xs); color: var(--color-cta); font-weight: 600; text-transform: uppercase;">Galle, Mirissa, Bentota, Colombo</p>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted); margin: var(--space-md) 0;">Best from <strong>December to April</strong> with dry, calm seas and prime whale-watching conditions.</p>
+            <span class="badge badge--popular">Peak Season: Dec – Mar</span>
+          </div>
+
+          <div class="card" style="padding: var(--space-xl);">
+            <h3 style="font-size: var(--text-xl); color: var(--color-primary); margin-bottom: var(--space-sm);">Cultural Triangle & East</h3>
+            <p style="font-size: var(--text-xs); color: var(--color-cta); font-weight: 600; text-transform: uppercase;">Sigiriya, Anuradhapura, Trincomalee, Pasikuda</p>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted); margin: var(--space-md) 0;">Best from <strong>May to September</strong>. Ideal for diving, beaches, and ancient ruins explorations.</p>
+            <span class="badge badge--new">Great in European Summer</span>
+          </div>
+
+          <div class="card" style="padding: var(--space-xl);">
+            <h3 style="font-size: var(--text-xl); color: var(--color-primary); margin-bottom: var(--space-sm);">Central Highlands</h3>
+            <p style="font-size: var(--text-xs); color: var(--color-cta); font-weight: 600; text-transform: uppercase;">Kandy, Nuwara Eliya, Ella, Horton Plains</p>
+            <p style="font-size: var(--text-sm); color: var(--color-text-muted); margin: var(--space-md) 0;">Pleasantly cool year-round (15–22°C). Best hiking and tea trail walks from <strong>January to April</strong>.</p>
+            <span class="badge badge--days">Year-Round Spring Climate</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="./index.html" class="navbar__logo" style="color: #fff;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary-light);">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            Ceylon<span style="color: var(--color-cta);">Pathways</span>
+          </a>
+          <p>Premier private tour operator in Sri Lanka. Tailor-made itineraries, licensed chauffeur guides, and unforgettable island experiences.</p>
+        </div>
+        <div>
+          <h4 class="footer__heading">Quick Links</h4>
+          <a href="./packages.html" class="footer__link">Tour Packages</a>
+          <a href="./customize.html" class="footer__link">Build Custom Tour</a>
+          <a href="./about.html" class="footer__link">About Our Company</a>
+          <a href="./blog.html" class="footer__link">Travel Guides</a>
+        </div>
+        <div>
+          <h4 class="footer__heading">Top Spots</h4>
+          <a href="./destinations.html#sigiriya" class="footer__link">Sigiriya Rock</a>
+          <a href="./destinations.html#ella" class="footer__link">Ella Nine Arches</a>
+          <a href="./destinations.html#yala" class="footer__link">Yala National Park</a>
+          <a href="./destinations.html#galle" class="footer__link">Galle Dutch Fort</a>
+        </div>
+        <div>
+          <h4 class="footer__heading">Contact</h4>
+          <p style="font-size: var(--text-xs); color: rgba(255,255,255,0.7); margin-bottom: 4px;"><strong>Licence:</strong> SLTDA TS/2026/894</p>
+          <p style="font-size: var(--text-xs); color: rgba(255,255,255,0.7); margin-bottom: 4px;"><strong>WhatsApp:</strong> +94 77 123 4567</p>
+          <p style="font-size: var(--text-xs); color: rgba(255,255,255,0.7);"><strong>Email:</strong> reservations@ceylonpathways.com</p>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 Ceylon Pathways Private Tours Ltd. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Floating Action Button -->
+  <a href="https://wa.me/94XXXXXXXXX" class="whatsapp-fab" id="whatsapp-fab" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+    <div class="whatsapp-fab__pulse"></div>
+    <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.074-1.921-.453-1.637-.67-2.697-2.34-2.778-2.45-.082-.11-0.655-.87-0.655-1.658 0-.788.412-1.176.559-1.336.147-.16.321-.2.428-.2.107 0 .214 0 .307.006.1.006.234-.038.366.28.144.35.49 1.198.533 1.286.044.088.073.19.015.306-.058.115-.088.19-.175.293-.087.102-.184.229-.263.307-.088.088-.18.183-.077.36.102.176.455.751.977 1.216.671.597 1.236.782 1.412.87.176.088.278.073.382-.045.103-.117.443-.514.561-.69.117-.176.234-.146.39-.088.156.059.988.466 1.158.552.17.085.283.128.324.2.042.072.042.417-.102.822z"/></svg>
+  </a>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Scripts -->
+  <script type="module" src="./js/main.js"></script>
+  <script type="module">
+    import { getDestinations, getImageUrl } from './js/api.js';
+
+    async function initDestinations() {
+      let destinations = [];
+      let markers = [];
+      let currentRegion = 'all';
+
+      // Initialize Map centered on Sri Lanka
+      const map = L.map('destinations-map').setView([7.8731, 80.7718], 8);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      async function loadDestinations() {
+        try {
+          destinations = await getDestinations();
+
+          // Clear old markers
+          markers.forEach(m => map.removeLayer(m));
+          markers = [];
+
+          // Add markers for all destinations
+          destinations.forEach(dest => {
+            if (dest.lat && dest.lng) {
+              const marker = L.marker([dest.lat, dest.lng]).addTo(map);
+              marker.bindPopup(`
+                <div style="max-width: 220px;">
+                  <img src="${getImageUrl(dest.image)}" style="width:100%; height:100px; object-fit:cover; border-radius: 6px; margin-bottom: 6px;">
+                  <h4 style="margin:0; font-size:16px;">${dest.name}</h4>
+                  <p style="font-size:12px; color:#5A5A56; margin:4px 0;">${dest.shortDesc || ''}</p>
+                  <div style="margin-top: 8px;">
+                    <a href="./customize.html?add=${dest.id}" style="display:inline-block; font-size:12px; background:#D85A30; color:#fff; padding:4px 8px; border-radius:4px; text-decoration:none;">Add to Custom Tour &rarr;</a>
+                  </div>
+                </div>
+              `);
+              markers.push(marker);
+            }
+          });
+
+          renderCards(currentRegion);
+        } catch (err) {
+          console.error('Error loading destinations map:', err);
+        }
+      }
+
+      // Render Destinations Grid
+      const container = document.getElementById('destinations-cards-container');
+      function renderCards(filterRegion = 'all') {
+        currentRegion = filterRegion;
+        const filtered = filterRegion === 'all' 
+          ? destinations 
+          : destinations.filter(d => (d.region || '').toLowerCase() === filterRegion.toLowerCase());
+
+        container.innerHTML = filtered.map(d => `
+          <div class="card" id="${d.id}">
+            <div class="card__image-wrap">
+              <span class="card__badge" style="background: var(--color-primary);">${d.region}</span>
+              <img src="${getImageUrl(d.image)}" alt="${d.name}" class="card__image" loading="lazy">
+            </div>
+            <div class="card__body">
+              <h3 class="card__title">${d.name}</h3>
+              <p class="card__desc">${d.description || d.shortDesc || ''}</p>
+              <div class="card__meta mb-md">
+                <span class="card__meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Visit time: ${d.typicalDuration || '1 Day'}
+                </span>
+                <span class="card__meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                  Best: ${d.bestTime || 'Year-round'}
+                </span>
+              </div>
+            </div>
+            <div class="card__footer">
+              <a href="./customize.html?add=${d.id}" class="btn btn--cta btn--sm" style="width: 100%;">
+                + Include in Custom Tour
+              </a>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      await loadDestinations();
+
+      document.addEventListener('ceylon-sync', () => {
+        loadDestinations();
+      });
+
+      // Region filter buttons
+      document.querySelectorAll('.dest-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.dest-filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const region = btn.getAttribute('data-region');
+          renderCards(region);
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDestinations);
+    } else {
+      initDestinations();
+    }
+  </script>
+</body>
+</html>

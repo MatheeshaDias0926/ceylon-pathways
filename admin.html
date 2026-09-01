@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard & Operations Portal | Ceylon Pathways</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/typography.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/pages.css">
+
+  <style>
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+      background: #f4f6f8;
+    }
+    .admin-sidebar {
+      background: #111827;
+      color: #9ca3af;
+      padding: var(--space-xl) var(--space-md);
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      color: #9ca3af;
+      text-decoration: none;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      margin-bottom: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+    .admin-nav-item:hover, .admin-nav-item.active {
+      background: var(--color-primary);
+      color: #fff;
+    }
+    .admin-nav-item svg {
+      width: 18px;
+      height: 18px;
+    }
+    .admin-content {
+      padding: 2.5rem 3rem;
+      overflow-y: auto;
+      background: #f8fafc;
+    }
+    .dashboard-section {
+      margin-bottom: 2.75rem;
+    }
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .dashboard-header h1 {
+      font-size: 1.65rem;
+      font-family: var(--font-body);
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px 0;
+    }
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .section-title {
+      font-size: 1rem;
+      font-family: var(--font-body);
+      font-weight: 600;
+      color: #334155;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+    .table-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      overflow-x: auto;
+    }
+    .admin-table {
+      width: 100%;
+      text-align: left;
+      font-size: var(--text-sm);
+      border-collapse: collapse;
+    }
+    .admin-table th {
+      background: #f8fafc;
+      padding: 0.9rem 1.25rem;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #64748b;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .admin-table td {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+      vertical-align: middle;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .status-new { background: #dbeafe; color: #1e40af; }
+    .status-contacted { background: #fef3c7; color: #92400e; }
+    .status-booked { background: #dcfce7; color: #166534; }
+    .status-closed { background: #f1f5f9; color: #64748b; }
+    
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    
+    /* Modal Dialogs */
+    .admin-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-md);
+      overflow-y: auto;
+    }
+    .admin-modal.open {
+      display: flex;
+    }
+    .admin-modal-card {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      border: var(--border-light);
+    }
+    .upload-box {
+      border: 2px dashed #d1d5db;
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      text-align: center;
+      background: #f9fafb;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .upload-box:hover {
+      border-color: var(--color-primary);
+      background: rgba(15, 110, 86, 0.04);
+    }
+    .img-preview-thumb {
+      width: 90px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      border: 1px solid #e5e7eb;
+      background: #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Authentication Overlay -->
+  <div class="admin-modal open" id="admin-login-modal">
+    <div class="card p-2xl" style="padding: var(--space-2xl); width: 100%; max-width: 420px; background: #fff;">
+      <div style="text-align: center; margin-bottom: var(--space-xl);">
+        <div class="navbar__logo" style="justify-content: center; font-size: var(--text-2xl);">
+          Ceylon<span>Admin</span>
+        </div>
+        <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 4px;">Operations & Tour Management Portal</p>
+      </div>
+
+      <form id="login-form">
+        <div id="login-error-msg" style="display: none; background: #fee2e2; color: #dc2626; padding: 10px 14px; border-radius: var(--radius-md); font-size: var(--text-xs); margin-bottom: var(--space-md); text-align: center; border: 1px solid #fca5a5;"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-username">Username</label>
+          <input type="text" id="login-username" class="form-input" placeholder="e.g. admin" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn--primary" id="btn-login-submit" style="width: 100%; margin-top: var(--space-sm);">
+          Sign In to Portal
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+      <div style="padding-bottom: var(--space-xl); border-bottom: 1px solid #374151; margin-bottom: var(--space-lg);">
+        <a href="./index.html" style="color: #fff; font-family: var(--font-heading); font-size: var(--text-xl); text-decoration: none; font-weight: bold;">
+          Ceylon<span style="color: var(--color-cta);">Admin</span>
+        </a>
+        <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">
+          Role: <strong id="logged-user-role" style="color: #34d399;">Owner (All Perms)</strong>
+        </div>
+      </div>
+
+      <nav style="flex: 1;">
+        <div class="admin-nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard Overview
+        </div>
+        <div class="admin-nav-item" data-tab="inbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Enquiries & Bookings (<span id="inbox-count">0</span>)
+        </div>
+        <div class="admin-nav-item" data-tab="packages">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          Tour Package Manager
+        </div>
+        <div class="admin-nav-item" data-tab="vehicles">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+          Vehicle Fleet CRUD
+        </div>
+        <div class="admin-nav-item" data-tab="destinations">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Destinations Manager
+        </div>
+        <div class="admin-nav-item" data-tab="testimonials">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Traveler Reviews (<span id="testimonials-count">0</span>)
+        </div>
+        <div class="admin-nav-item" data-tab="users">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Staff & Permissions
+        </div>
+      </nav>
+
+      <div style="border-top: 1px solid #374151; padding-top: var(--space-md); margin-top: auto;">
+        <a href="./index.html" class="btn btn--outline btn--sm" style="color: #fff; border-color: #4b5563; width: 100%; justify-content: center; margin-bottom: 8px;">
+          &larr; View Live Site
+        </a>
+        <button id="logout-btn" class="btn btn--sm" style="color: #ef4444; width: 100%; justify-content: center;">
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-content">
+      
+      <!-- PANEL 1: Dashboard Overview -->
+      <div class="tab-panel active" id="tab-dashboard">
+        <div class="dashboard-header">
+          <div>
+            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Operations Dashboard</h1>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Real-time booking pipeline, fleet status, and live customer engagements.</p>
+          </div>
+          <div>
+            <button class="btn btn--primary btn--sm" id="btn-refresh-dashboard" style="padding: 0.6rem 1.25rem;">↻ Refresh Data</button>
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-4" style="gap: 1.5rem; margin-bottom: 2.75rem;">
+          <div class="stat-card">
+            <span style="font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Total Leads / Inquiries</span>
+            <div style="font-size: 2.25rem; font-weight: 800; color: var(--color-primary); line-height: 1.1; margin-bottom: 6px;" id="metric-total-leads">0</div>
+            <span style="font-size: 12px; font-weight: 600; color: #10b981;" id="metric-new-leads">0 new pending</span>
+          </div>
+
+          <div class="stat-card">
+            <span style="font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Confirmed Bookings</span>
+            <div style="font-size: 2.25rem; font-weight: 800; color: var(--color-cta); line-height: 1.1; margin-bottom: 6px;" id="metric-booked-leads">0</div>
+            <span style="font-size: 12px; font-weight: 600; color: #10b981;">Active reservations</span>
+          </div>
+
+          <div class="stat-card">
+            <span style="font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Active Packages</span>
+            <div style="font-size: 2.25rem; font-weight: 800; color: #0f172a; line-height: 1.1; margin-bottom: 6px;" id="metric-total-packages">0</div>
+            <span style="font-size: 12px; font-weight: 600; color: var(--color-primary);">Live on website</span>
+          </div>
+
+          <div class="stat-card">
+            <span style="font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;">Fleet Availability</span>
+            <div style="font-size: 2.25rem; font-weight: 800; color: var(--color-accent); line-height: 1.1; margin-bottom: 6px;" id="metric-fleet-status">5 / 5</div>
+            <span style="font-size: 12px; font-weight: 600; color: #10b981;">Vehicles ready</span>
+          </div>
+        </div>
+
+        <!-- Recent Inquiries Table -->
+        <div class="dashboard-section">
+          <div class="section-header-row">
+            <div>
+              <h2 class="section-title">Recent Inbound Enquiries</h2>
+              <p style="font-size: 13px; color: #64748b; margin: 2px 0 0;">Latest customer inquiries from website forms</p>
+            </div>
+            <button class="btn btn--outline btn--sm" data-nav="inbox" style="padding: 0.5rem 1rem;">View All in Inbox &rarr;</button>
+          </div>
+
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Guest Name</th>
+                  <th>Contact Email</th>
+                  <th>Tour / Type</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-recent-leads">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Upcoming Confirmed Departures Calendar -->
+        <div class="dashboard-section">
+          <div class="section-header-row">
+            <div>
+              <h2 class="section-title">Upcoming Confirmed Departures Calendar</h2>
+              <p style="font-size: 13px; color: #64748b; margin: 2px 0 0;">Scheduled client tours and assigned fleet</p>
+            </div>
+            <span class="badge badge--popular" style="padding: 5px 12px; font-size: 12px;">Live Departures Feed</span>
+          </div>
+
+          <div class="grid grid-3" id="dashboard-calendar-grid" style="gap: 1.5rem;">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: Enquiries Inbox -->
+      <div class="tab-panel" id="tab-inbox">
+        <div class="dashboard-header">
+          <div>
+            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Customer Enquiries & Bookings Inbox</h1>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Click any enquiry to inspect full itinerary details or update status.</p>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID / Received</th>
+                <th>Guest</th>
+                <th>Tour / Plan</th>
+                <th>Travel Dates & Guests</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inbox-table-body">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PANEL 3: Package Manager CRUD -->
+      <div class="tab-panel" id="tab-packages">
+        <div class="dashboard-header">
+          <div>
+            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Tour Package Manager</h1>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Create and customize pre-built packages. Changes reflect on the public site immediately.</p>
+          </div>
+          <button class="btn btn--primary btn--sm" id="btn-add-package" style="padding: 0.6rem 1.25rem;">+ Create New Tour Package</button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Tour Title</th>
+                <th>Duration</th>
+                <th>Price (USD)</th>
+                <th>Included Vehicle</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-packages-table">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PANEL 4: Vehicle Fleet CRUD -->
+      <div class="tab-panel" id="tab-vehicles">
+        <div class="dashboard-header">
+          <div>
+            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Vehicle Fleet Manager</h1>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Manage vehicle specs, rates, and availability for the customizer.</p>
+          </div>
+          <button class="btn btn--primary btn--sm" id="btn-add-vehicle" style="padding: 0.6rem 1.25rem;">+ Add New Vehicle</button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Vehicle Model</th>
+                <th>Category</th>
+                <th>Capacity</th>
+                <th>Rate / Day (USD)</th>
+                <th>Availability</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-vehicles-table">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PANEL 5: Destinations Manager -->
+      <div class="tab-panel" id="tab-destinations">
+        <div class="dashboard-header">
+          <div>
+            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Destinations & Attractions Manager</h1>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Add or modify island attractions and GPS pins on the interactive map.</p>
+          </div>
+          <button class="btn btn--primary btn--sm" id="btn-add-destination" style="padding: 0.6rem 1.25rem;">+ Add New Destination</button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Region</th>
+                <th>Visit Duration</th>
+                <th>Best Season</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-destinations-table">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PANEL: Traveler Reviews & Testimonials -->
+      <div class="tab-panel" id="tab-testimonials">
+        <div class="dashboard-header">
+          <div>
+            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Traveler Reviews & Testimonials</h1>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Manage guest reviews featured under 'Loved by Travelers Worldwide' on the home page and about page.</p>
+          </div>
+          <button class="btn btn--primary btn--sm" id="btn-add-testimonial" style="padding: 0.6rem 1.25rem;">+ Add New Testimonial</button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Guest Name</th>
+                <th>Country / Origin</th>
+                <th>Rating</th>
+                <th>Review Snippet</th>
+                <th>Featured</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="testimonials-table-body">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PANEL 7: Users & Roles -->
+      <div class="tab-panel" id="tab-users">
+        <div class="dashboard-header">
+          <div>
+            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Staff Accounts & Roles</h1>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Manage administrator permissions and operational staff access.</p>
+          </div>
+          <button class="btn btn--primary btn--sm" onclick="alert('Staff invite sent to email!');" style="padding: 0.6rem 1.25rem;">+ Invite Staff Account</button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Permissions</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Nimal Wickramasinghe</strong></td>
+                <td>owner@ceylonpathways.com</td>
+                <td><span class="status-badge status-booked">Owner</span></td>
+                <td>Full CRUD, Financials, User Mgmt</td>
+                <td><span style="color: #10b981;">Active</span></td>
+              </tr>
+              <tr>
+                <td><strong>Dinesh Perera</strong></td>
+                <td>reservations@ceylonpathways.com</td>
+                <td><span class="status-badge status-new">Staff</span></td>
+                <td>Inquiries Inbox & WhatsApp Leads</td>
+                <td><span style="color: #10b981;">Active</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL 1: Package Create / Edit -->
+  <div class="admin-modal" id="modal-package">
+    <div class="admin-modal-card">
+      <div class="flex justify-between items-center mb-lg">
+        <h2 id="pkg-modal-title" style="font-size: var(--text-xl);">Add / Edit Tour Package</h2>
+        <button type="button" class="btn btn--outline btn--sm" onclick="document.getElementById('modal-package').classList.remove('open')">&times; Close</button>
+      </div>
+      <form id="form-package">
+        <input type="hidden" id="pkg-id">
+        <div class="grid grid-2" style="gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Tour Title *</label>
+            <input type="text" id="pkg-title" class="form-input" placeholder="e.g. 8-Day Southern Explorer" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select id="pkg-type" class="form-input">
+              <option value="Cultural">Cultural</option>
+              <option value="Nature">Nature & Wildlife</option>
+              <option value="Comprehensive">Comprehensive Grand Tour</option>
+              <option value="Beach">Beach & Leisure</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tagline Description *</label>
+          <input type="text" id="pkg-tagline" class="form-input" placeholder="e.g. Ancient kingdoms, scenic trains & golden coasts" required>
+        </div>
+
+        <div class="grid grid-3" style="gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Duration (Days) *</label>
+            <input type="number" id="pkg-duration" class="form-input" min="1" max="30" value="7" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Price per Person (USD) *</label>
+            <input type="number" id="pkg-price" class="form-input" min="50" max="10000" value="899" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Default Vehicle *</label>
+            <select id="pkg-vehicle" class="form-input">
+              <option value="prius">Toyota Prius</option>
+              <option value="corolla" selected>Toyota Corolla</option>
+              <option value="kdh-van">Toyota Hiace (KDH) Van</option>
+              <option value="suv">SUV 4x4</option>
+              <option value="luxury">Luxury Van</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Image Upload & Preview -->
+        <div class="form-group mb-lg">
+          <label class="form-label">Cover Photo (Upload Image or Enter Path)</label>
+          <div class="flex gap-md items-center">
+            <img id="pkg-img-preview" src="./images/packages/cultural-triangle.jpg" alt="Preview" class="img-preview-thumb">
+            <div style="flex: 1;">
+              <input type="file" id="pkg-file-input" accept="image/*" class="form-input" style="padding: 6px; font-size: 12px; margin-bottom: 6px;">
+              <input type="text" id="pkg-image" class="form-input" value="packages/cultural-triangle.jpg" placeholder="image file path">
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Day-by-Day Itinerary Editor -->
+        <div class="mb-lg" style="background: var(--color-bg); padding: var(--space-md); border-radius: var(--radius-md);">
+          <div class="flex justify-between items-center mb-sm">
+            <label class="form-label" style="margin: 0;">Day-by-Day Itinerary Schedule</label>
+            <button type="button" class="btn btn--outline btn--sm" id="btn-add-day">+ Add Day</button>
+          </div>
+          <div id="itinerary-rows-container" style="display: flex; flex-direction: column; gap: var(--space-sm);">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-md">
+          <button type="button" class="btn btn--outline" onclick="document.getElementById('modal-package').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn--primary">Save Package & Publish Live</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Vehicle Create / Edit -->
+  <div class="admin-modal" id="modal-vehicle">
+    <div class="admin-modal-card">
+      <div class="flex justify-between items-center mb-lg">
+        <h2 id="veh-modal-title" style="font-size: var(--text-xl);">Add / Edit Vehicle</h2>
+        <button type="button" class="btn btn--outline btn--sm" onclick="document.getElementById('modal-vehicle').classList.remove('open')">&times; Close</button>
+      </div>
+      <form id="form-vehicle">
+        <input type="hidden" id="veh-id">
+        <div class="grid grid-2" style="gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Vehicle Name *</label>
+            <input type="text" id="veh-name" class="form-input" placeholder="e.g. Toyota Hiace KDH" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <input type="text" id="veh-type" class="form-input" placeholder="e.g. Van / Sedan / SUV" required>
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Seats</label>
+            <input type="number" id="veh-seats" class="form-input" min="1" max="50" value="4" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Luggage Space</label>
+            <input type="text" id="veh-luggage" class="form-input" value="3 large bags" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Daily Rate (USD) *</label>
+            <input type="number" id="veh-price" class="form-input" min="10" max="2000" value="65" required>
+          </div>
+        </div>
+
+        <!-- Image Upload & Preview -->
+        <div class="form-group mb-md">
+          <label class="form-label">Vehicle Photo (Upload Image or Enter Path)</label>
+          <div class="flex gap-md items-center">
+            <img id="veh-img-preview" src="./images/vehicles/prius.jpg" alt="Preview" class="img-preview-thumb">
+            <div style="flex: 1;">
+              <input type="file" id="veh-file-input" accept="image/*" class="form-input" style="padding: 6px; font-size: 12px; margin-bottom: 6px;">
+              <input type="text" id="veh-image" class="form-input" value="vehicles/prius.jpg" placeholder="image file path">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Vehicle Description</label>
+          <textarea id="veh-desc" class="form-input" rows="2" placeholder="Vehicle features and comfort specs"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="veh-available" checked style="width: 18px; height: 18px; accent-color: var(--color-primary);">
+            <strong>Mark Vehicle as Active / Available for Bookings</strong>
+          </label>
+        </div>
+
+        <div class="flex justify-end gap-md">
+          <button type="button" class="btn btn--outline" onclick="document.getElementById('modal-vehicle').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn--primary">Save Vehicle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Destination Create / Edit -->
+  <div class="admin-modal" id="modal-destination">
+    <div class="admin-modal-card">
+      <div class="flex justify-between items-center mb-lg">
+        <h2 id="dest-modal-title" style="font-size: var(--text-xl);">Add / Edit Destination</h2>
+        <button type="button" class="btn btn--outline btn--sm" onclick="document.getElementById('modal-destination').classList.remove('open')">&times; Close</button>
+      </div>
+      <form id="form-destination">
+        <input type="hidden" id="dest-id">
+        <div class="grid grid-2" style="gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Destination Name *</label>
+            <input type="text" id="dest-name" class="form-input" placeholder="e.g. Mirissa" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Region *</label>
+            <input type="text" id="dest-region" class="form-input" placeholder="e.g. Southern Coast" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Short Summary *</label>
+          <input type="text" id="dest-short" class="form-input" placeholder="e.g. Palm-fringed beaches and blue whale watching" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Full Description</label>
+          <textarea id="dest-desc" class="form-input" rows="2"></textarea>
+        </div>
+
+        <!-- Interactive Map Picker -->
+        <div class="form-group mb-md">
+          <label class="form-label flex justify-between items-center">
+            <span>Choose Location on Map (Click or Drag Pin)</span>
+            <span id="coords-badge" class="badge badge--popular">Lat: 7.8731, Lng: 80.7718</span>
+          </label>
+          <div id="dest-picker-map" style="height: 220px; width: 100%; border-radius: var(--radius-md); border: var(--border-light); z-index: 1;"></div>
+        </div>
+
+        <div class="grid grid-3" style="gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Latitude</label>
+            <input type="number" step="0.0001" id="dest-lat" class="form-input" value="7.8731" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Longitude</label>
+            <input type="number" step="0.0001" id="dest-lng" class="form-input" value="80.7718" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Typical Duration</label>
+            <input type="text" id="dest-duration" class="form-input" value="1-2 Days">
+          </div>
+        </div>
+
+        <!-- Image Upload & Preview -->
+        <div class="form-group mb-lg">
+          <label class="form-label">Destination Image (Upload Image or Enter Path)</label>
+          <div class="flex gap-md items-center">
+            <img id="dest-img-preview" src="./images/destinations/sigiriya.jpg" alt="Preview" class="img-preview-thumb">
+            <div style="flex: 1;">
+              <input type="file" id="dest-file-input" accept="image/*" class="form-input" style="padding: 6px; font-size: 12px; margin-bottom: 6px;">
+              <input type="text" id="dest-image" class="form-input" value="destinations/sigiriya.jpg" placeholder="image file path">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-md">
+          <button type="button" class="btn btn--outline" onclick="document.getElementById('modal-destination').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn--primary">Save Destination</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Enquiry Inspector -->
+  <div class="admin-modal" id="modal-enquiry-inspect">
+    <div class="admin-modal-card">
+      <div class="flex justify-between items-center mb-lg">
+        <h2 style="font-size: var(--text-xl);">Guest Booking & Enquiry Details</h2>
+        <button type="button" class="btn btn--outline btn--sm" onclick="document.getElementById('modal-enquiry-inspect').classList.remove('open')">&times; Close</button>
+      </div>
+      <div id="enquiry-inspect-body" style="font-size: var(--text-sm);">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: Testimonial Create / Edit -->
+  <div class="admin-modal" id="modal-testimonial">
+    <div class="admin-modal-card">
+      <div class="flex justify-between items-center mb-lg">
+        <h2 id="testimonial-modal-title" style="font-size: var(--text-xl);">Add / Edit Traveler Review</h2>
+        <button type="button" class="btn btn--outline btn--sm" onclick="document.getElementById('modal-testimonial').classList.remove('open')">&times; Close</button>
+      </div>
+      <form id="form-testimonial">
+        <input type="hidden" id="testimonial-id">
+        <div class="grid grid-2" style="gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Guest Name(s) *</label>
+            <input type="text" id="testimonial-name" class="form-input" placeholder="e.g. Sarah & Mark Jenkins" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country / City of Origin *</label>
+            <input type="text" id="testimonial-origin" class="form-input" placeholder="e.g. London, United Kingdom" required>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label">Star Rating *</label>
+            <select id="testimonial-rating" class="form-input">
+              <option value="5" selected>⭐⭐⭐⭐⭐ (5 Stars - Exceptional)</option>
+              <option value="4">⭐⭐⭐⭐ (4 Stars - Very Good)</option>
+              <option value="3">⭐⭐⭐ (3 Stars - Average)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Display Order / Priority</label>
+            <input type="number" id="testimonial-order" class="form-input" value="0" min="0">
+          </div>
+        </div>
+
+        <!-- Avatar Image Upload & Preview -->
+        <div class="form-group mb-md">
+          <label class="form-label">Traveler Avatar Photo (Upload Image or Enter URL/Path)</label>
+          <div class="flex gap-md items-center">
+            <img id="testimonial-img-preview" src="./images/hero/beach.jpg" alt="Preview" class="img-preview-thumb" style="width: 60px; height: 60px; border-radius: 50%;">
+            <div style="flex: 1;">
+              <input type="file" id="testimonial-file-input" accept="image/*" class="form-input" style="padding: 6px; font-size: 12px; margin-bottom: 6px;">
+              <input type="text" id="testimonial-avatar" class="form-input" value="hero/beach.jpg" placeholder="e.g. hero/beach.jpg or https://res.cloudinary.com/...">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group mb-lg">
+          <label class="form-label">Review Quote / Testimonial Text *</label>
+          <textarea id="testimonial-text" class="form-input" rows="4" placeholder="Write or paste the guest review here..." required></textarea>
+        </div>
+
+        <div class="flex justify-end gap-md">
+          <button type="button" class="btn btn--outline" onclick="document.getElementById('modal-testimonial').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="btn-save-testimonial">Save & Publish Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Scripts -->
+  <script type="module">
+    import {
+      getPackages, createPackage, updatePackage, deletePackage,
+      getVehicles, createVehicle, updateVehicle, deleteVehicle,
+      getDestinations, createDestination, updateDestination, deleteDestination,
+      getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial,
+      getEnquiries, updateEnquiryStatus, deleteEnquiry,
+      uploadImage, getImageUrl,
+      loginAdmin, logoutAdmin, isAuthenticated, getCurrentUser
+    } from './js/api.js';
+
+    let currentPackages = [];
+    let currentVehicles = [];
+    let currentDestinations = [];
+    let currentTestimonials = [];
+    let currentEnquiries = [];
+
+    let pickerMap = null;
+    let pickerMarker = null;
+
+    async function initAdmin() {
+      // Auth
+      const loginModal = document.getElementById('admin-login-modal');
+      const loginForm = document.getElementById('login-form');
+      const logoutBtn = document.getElementById('logout-btn');
+      const roleLabel = document.getElementById('logged-user-role');
+
+      // Check existing JWT session
+      if (isAuthenticated()) {
+        loginModal.classList.remove('open');
+        const user = getCurrentUser();
+        if (user) {
+          roleLabel.textContent = user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
+        }
+      }
+
+      // JWT Login
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errBox = document.getElementById('login-error-msg');
+        const submitBtn = document.getElementById('btn-login-submit');
+        const username = document.getElementById('login-username').value.trim();
+        const pass = document.getElementById('login-password').value;
+
+        errBox.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Verifying...';
+
+        try {
+          const result = await loginAdmin(username, pass);
+          loginModal.classList.remove('open');
+          roleLabel.textContent = result.user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
+          loadAllData();
+        } catch (err) {
+          errBox.textContent = err.message || 'Invalid username or password. Please try again.';
+          errBox.style.display = 'block';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In to Portal';
+        }
+      });
+
+      // Logout — clears JWT
+      logoutBtn.addEventListener('click', () => {
+        logoutAdmin();
+        location.reload();
+      });
+
+      // Auto-redirect to login when JWT expires
+      document.addEventListener('ceylon-auth-expired', () => {
+        alert('Session expired. Please log in again.');
+        loginModal.classList.add('open');
+      });
+
+      // Tabs
+      document.querySelectorAll('.admin-nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+          document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+          const tab = item.getAttribute('data-tab');
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+          document.getElementById(`tab-${tab}`).classList.add('active');
+        });
+      });
+
+      document.querySelectorAll('[data-nav]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const navTab = btn.getAttribute('data-nav');
+          document.querySelector(`.admin-nav-item[data-tab="${navTab}"]`).click();
+        });
+      });
+
+      document.getElementById('btn-refresh-dashboard').addEventListener('click', loadAllData);
+
+      // Listen for realtime sync
+      document.addEventListener('ceylon-sync', () => {
+        loadAllData();
+      });
+
+      // Setup Image Upload Handlers
+      setupImageUploads();
+
+      await loadAllData();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAdmin);
+    } else {
+      initAdmin();
+    }
+
+    /* ── IMAGE UPLOAD ATTACHMENT ── */
+    function setupImageUploads() {
+      // Package Upload
+      const pkgFileInput = document.getElementById('pkg-file-input');
+      const pkgImgInput = document.getElementById('pkg-image');
+      const pkgPreview = document.getElementById('pkg-img-preview');
+      pkgFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const res = await uploadImage(file, 'packages');
+          if (res && res.imagePath) {
+            pkgImgInput.value = res.imagePath;
+            pkgPreview.src = getImageUrl(res.imagePath);
+          }
+        } catch (err) {
+          alert('Upload failed: ' + (err.message || 'Please try again.'));
+        }
+      });
+      pkgImgInput.addEventListener('input', () => {
+        pkgPreview.src = getImageUrl(pkgImgInput.value);
+      });
+
+      // Vehicle Upload
+      const vehFileInput = document.getElementById('veh-file-input');
+      const vehImgInput = document.getElementById('veh-image');
+      const vehPreview = document.getElementById('veh-img-preview');
+      vehFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const res = await uploadImage(file, 'vehicles');
+          if (res && res.imagePath) {
+            vehImgInput.value = res.imagePath;
+            vehPreview.src = getImageUrl(res.imagePath);
+          }
+        } catch (err) {
+          alert('Upload failed: ' + (err.message || 'Please try again.'));
+        }
+      });
+      vehImgInput.addEventListener('input', () => {
+        vehPreview.src = getImageUrl(vehImgInput.value);
+      });
+
+      // Destination Upload
+      const destFileInput = document.getElementById('dest-file-input');
+      const destImgInput = document.getElementById('dest-image');
+      const destPreview = document.getElementById('dest-img-preview');
+      destFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const res = await uploadImage(file, 'destinations');
+          if (res && res.imagePath) {
+            destImgInput.value = res.imagePath;
+            destPreview.src = getImageUrl(res.imagePath);
+          }
+        } catch (err) {
+          alert('Upload failed: ' + (err.message || 'Please try again.'));
+        }
+      });
+      destImgInput.addEventListener('input', () => {
+        destPreview.src = getImageUrl(destImgInput.value);
+      });
+
+      // Testimonial Avatar Upload
+      const testFileInput = document.getElementById('testimonial-file-input');
+      const testImgInput = document.getElementById('testimonial-avatar');
+      const testPreview = document.getElementById('testimonial-img-preview');
+      if (testFileInput) {
+        testFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          try {
+            const res = await uploadImage(file, 'testimonials');
+            if (res && res.imagePath) {
+              testImgInput.value = res.imagePath;
+              testPreview.src = getImageUrl(res.imagePath);
+            }
+          } catch (err) {
+            alert('Upload failed: ' + (err.message || 'Please try again.'));
+          }
+        });
+      }
+      if (testImgInput) {
+        testImgInput.addEventListener('input', () => {
+          testPreview.src = getImageUrl(testImgInput.value);
+        });
+      }
+    }
+
+    /* ── INTERACTIVE MAP LOCATION PICKER ── */
+    function initOrUpdateLocationPicker(lat = 7.8731, lng = 80.7718) {
+      setTimeout(() => {
+        const mapContainer = document.getElementById('dest-picker-map');
+        if (!mapContainer) return;
+
+        if (!pickerMap) {
+          pickerMap = L.map('dest-picker-map').setView([lat, lng], 8);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap'
+          }).addTo(pickerMap);
+
+          pickerMarker = L.marker([lat, lng], { draggable: true }).addTo(pickerMap);
+
+          pickerMarker.on('dragend', (e) => {
+            const pos = e.target.getLatLng();
+            updateCoordsFields(pos.lat, pos.lng);
+          });
+
+          pickerMap.on('click', (e) => {
+            pickerMarker.setLatLng(e.latlng);
+            updateCoordsFields(e.latlng.lat, e.latlng.lng);
+          });
+
+          // Sync if user types in text inputs
+          document.getElementById('dest-lat').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            if (!isNaN(val)) {
+              const cur = pickerMarker.getLatLng();
+              pickerMarker.setLatLng([val, cur.lng]);
+              pickerMap.panTo([val, cur.lng]);
+            }
+          });
+          document.getElementById('dest-lng').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            if (!isNaN(val)) {
+              const cur = pickerMarker.getLatLng();
+              pickerMarker.setLatLng([cur.lat, val]);
+              pickerMap.panTo([cur.lat, val]);
+            }
+          });
+
+        } else {
+          pickerMap.invalidateSize();
+          pickerMap.setView([lat, lng], 8);
+          pickerMarker.setLatLng([lat, lng]);
+        }
+
+        updateCoordsFields(lat, lng);
+      }, 200);
+    }
+
+    function updateCoordsFields(lat, lng) {
+      document.getElementById('dest-lat').value = lat.toFixed(4);
+      document.getElementById('dest-lng').value = lng.toFixed(4);
+      document.getElementById('coords-badge').textContent = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+    }
+
+    async function loadAllData() {
+      try {
+        [currentPackages, currentVehicles, currentDestinations, currentTestimonials, currentEnquiries] = await Promise.all([
+          getPackages(),
+          getVehicles(),
+          getDestinations(),
+          getTestimonials(),
+          getEnquiries()
+        ]);
+
+        renderDashboard();
+        renderInbox();
+        renderPackagesTable();
+        renderVehiclesTable();
+        renderDestinationsTable();
+        renderTestimonialsTable();
+      } catch (err) {
+        console.error('Error loading data:', err);
+      }
+    }
+
+    /* ── DASHBOARD ── */
+    function renderDashboard() {
+      const newCount = currentEnquiries.filter(e => e.status === 'new').length;
+      const bookedCount = currentEnquiries.filter(e => e.status === 'booked').length;
+      const availVeh = currentVehicles.filter(v => v.available !== false).length;
+
+      document.getElementById('metric-total-leads').textContent = currentEnquiries.length;
+      document.getElementById('metric-new-leads').textContent = `${newCount} new pending`;
+      document.getElementById('metric-booked-leads').textContent = bookedCount;
+      document.getElementById('metric-total-packages').textContent = currentPackages.length;
+      document.getElementById('metric-fleet-status').textContent = `${availVeh} / ${currentVehicles.length}`;
+      document.getElementById('inbox-count').textContent = currentEnquiries.length;
+      const testCountEl = document.getElementById('testimonials-count');
+      if (testCountEl) testCountEl.textContent = currentTestimonials.length;
+
+      // Recent leads table
+      document.getElementById('dashboard-recent-leads').innerHTML = currentEnquiries.slice(0, 5).map(e => `
+        <tr>
+          <td>${new Date(e.timestamp).toLocaleDateString()}</td>
+          <td><strong>${e.name}</strong></td>
+          <td>${e.email}</td>
+          <td>${e.packageTitle || `${e.tripDays || 7}-Day Custom Tour`}</td>
+          <td><span class="status-badge status-${e.status || 'new'}">${e.status || 'new'}</span></td>
+          <td><button class="btn btn--outline btn--sm" onclick="window.inspectEnquiry('${e.id}')">View</button></td>
+        </tr>
+      `).join('');
+
+      // Departures calendar
+      const bookedList = currentEnquiries.filter(e => e.status === 'booked');
+      const calendarContainer = document.getElementById('dashboard-calendar-grid');
+
+      if (bookedList.length === 0) {
+        calendarContainer.innerHTML = `
+          <div style="grid-column: 1 / -1; background: #fff; border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center; border: var(--border-light);">
+            <div style="font-size: 32px; margin-bottom: 8px;">🗓️</div>
+            <h3 style="font-size: var(--text-md); margin-bottom: 4px;">No Confirmed Departures Yet</h3>
+            <p style="font-size: var(--text-xs); color: #6b7280; max-width: 400px; margin: 0 auto var(--space-md);">
+              When you change an enquiry status to <strong>"Booked"</strong> in the Inbox, it will automatically schedule here in the live departures calendar.
+            </p>
+            <button class="btn btn--outline btn--sm" data-nav="inbox">Open Enquiries Inbox &rarr;</button>
+          </div>
+        `;
+        calendarContainer.querySelectorAll('[data-nav]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelector(`.admin-nav-item[data-tab="inbox"]`).click();
+          });
+        });
+      } else {
+        calendarContainer.innerHTML = bookedList.map(b => {
+          const departureDate = b.date ? new Date(b.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date Flexible';
+          const vehicleInfo = b.vehicle || (b.packageTitle ? 'Private A/C Transport' : 'Toyota Sedan');
+          const guestCount = b.guests || b.adults || 2;
+          
+          return `
+            <div class="card p-lg" style="padding: var(--space-lg); background: #fff; border-left: 4px solid #10b981; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div class="flex justify-between items-center mb-xs">
+                  <span style="font-size: 11px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px;">
+                    📅 ${departureDate}
+                  </span>
+                  <span class="status-badge status-booked">CONFIRMED</span>
+                </div>
+                <h4 style="font-size: var(--text-md); margin: 4px 0 6px; font-family: var(--font-body); font-weight: 700; color: var(--color-text);">
+                  ${b.packageTitle || `${b.tripDays || 7}-Day Custom Tour`}
+                </h4>
+                <p style="font-size: 13px; color: #4b5563; margin-bottom: 8px;">
+                  Lead Guest: <strong>${b.name}</strong> (${guestCount} Pax)
+                </p>
+                <div style="font-size: 12px; color: #6b7280; background: var(--color-bg); padding: 6px 10px; border-radius: 4px; margin-bottom: 12px;">
+                  🚙 <strong>Fleet:</strong> ${vehicleInfo}
+                </div>
+              </div>
+              <div class="flex justify-between items-center pt-xs" style="border-top: 1px solid #f3f4f6;">
+                <span style="font-size: 11px; color: #9ca3af;">ID: #${b.id}</span>
+                <button class="btn btn--outline btn--sm" style="padding: 4px 10px; font-size: 11px;" onclick="window.inspectEnquiry('${b.id}')">
+                  Inspect Booking &rarr;
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    /* ── INBOX ── */
+    function renderInbox() {
+      document.getElementById('inbox-table-body').innerHTML = currentEnquiries.map(e => `
+        <tr>
+          <td>
+            <strong>#${e.id}</strong><br>
+            <small style="color: #6b7280;">${new Date(e.timestamp).toLocaleDateString()}</small>
+          </td>
+          <td>
+            <strong>${e.name}</strong><br>
+            <small>${e.email} ${e.phone ? `&bull; ${e.phone}` : ''}</small>
+          </td>
+          <td>
+            ${e.packageTitle || `${e.tripDays || 7}-Day Custom (${(e.destinations || []).length} stops)`}
+          </td>
+          <td>${e.date || 'Flexible'} &bull; ${e.guests || e.adults || 2} Pax</td>
+          <td>
+            <select onchange="window.handleStatusChange('${e.id}', this.value)" style="font-size: 12px; padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-weight: 600;">
+              <option value="new" ${e.status === 'new' ? 'selected' : ''}>New</option>
+              <option value="contacted" ${e.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+              <option value="booked" ${e.status === 'booked' ? 'selected' : ''}>Booked</option>
+              <option value="closed" ${e.status === 'closed' ? 'selected' : ''}>Closed</option>
+            </select>
+          </td>
+          <td>
+            <div class="flex gap-xs">
+              <button class="btn btn--outline btn--sm" onclick="window.inspectEnquiry('${e.id}')">Inspect</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.handleDeleteEnquiry('${e.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    window.handleStatusChange = async (id, status) => {
+      await updateEnquiryStatus(id, status);
+      await loadAllData();
+    };
+
+    window.handleDeleteEnquiry = async (id) => {
+      if (confirm('Delete this enquiry record?')) {
+        await deleteEnquiry(id);
+        await loadAllData();
+      }
+    };
+
+    window.inspectEnquiry = (id) => {
+      const e = currentEnquiries.find(x => x.id === id);
+      if (!e) return;
+
+      document.getElementById('enquiry-inspect-body').innerHTML = `
+        <div style="background: var(--color-bg); padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
+          <h3 style="margin-bottom: 4px;">${e.name}</h3>
+          <p style="margin: 0; color: #4b5563;">Email: <strong>${e.email}</strong> | Phone: <strong>${e.phone || 'N/A'}</strong></p>
+        </div>
+        <div class="grid grid-2" style="gap: var(--space-md); margin-bottom: var(--space-md);">
+          <div>
+            <strong>Tour Details:</strong>
+            <p style="color: #4b5563; margin-top: 4px;">
+              ${e.packageTitle ? `Package: ${e.packageTitle}` : `Custom Tour (${e.tripDays} Days)`}<br>
+              Travel Date: ${e.date || 'Flexible'}<br>
+              Group Size: ${e.guests || e.adults || 2} Travelers
+            </p>
+          </div>
+          <div>
+            <strong>Preferences & Selections:</strong>
+            <p style="color: #4b5563; margin-top: 4px;">
+              ${e.destinations ? `Destinations: ${e.destinations.join(', ')}<br>` : ''}
+              ${e.vehicle ? `Vehicle: ${e.vehicle}<br>` : ''}
+              ${e.hotelTier ? `Hotel Category: ${e.hotelTier}<br>` : ''}
+              Status: <span class="status-badge status-${e.status}">${e.status}</span>
+            </p>
+          </div>
+        </div>
+        <div style="margin-bottom: var(--space-md);">
+          <strong>Customer Notes & Special Requests:</strong>
+          <p style="background: #fff; padding: var(--space-sm); border: var(--border-light); border-radius: 4px; margin-top: 4px;">${e.notes || e.message || 'No additional notes provided.'}</p>
+        </div>
+        <div class="flex justify-between items-center">
+          <a href="mailto:${e.email}?subject=Your Sri Lanka Tour with Ceylon Pathways" class="btn btn--primary btn--sm">Reply via Email</a>
+          ${e.phone ? `<a href="https://wa.me/${e.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn btn--cta btn--sm">Chat on WhatsApp</a>` : ''}
+        </div>
+      `;
+
+      document.getElementById('modal-enquiry-inspect').classList.add('open');
+    };
+
+    /* ── PACKAGES CRUD ── */
+    function renderPackagesTable() {
+      document.getElementById('admin-packages-table').innerHTML = currentPackages.map(p => `
+        <tr>
+          <td><img src="${getImageUrl(p.image)}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
+          <td><strong>${p.title}</strong><br><small style="color: #6b7280;">${p.tagline}</small></td>
+          <td>${p.duration} Days</td>
+          <td><strong>$${p.price}</strong></td>
+          <td>${p.vehicle}</td>
+          <td>
+            <div class="flex gap-xs">
+              <button class="btn btn--outline btn--sm" onclick="window.editPackage('${p.id}')">Edit</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deletePackageHandler('${p.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('btn-add-package').addEventListener('click', () => {
+      document.getElementById('pkg-modal-title').textContent = 'Create New Tour Package';
+      document.getElementById('form-package').reset();
+      document.getElementById('pkg-id').value = '';
+      document.getElementById('pkg-image').value = 'packages/cultural-triangle.jpg';
+      document.getElementById('pkg-img-preview').src = getImageUrl('packages/cultural-triangle.jpg');
+      renderItineraryRows([
+        { day: 1, title: 'Arrival & Welcome', description: 'Airport pickup and transfer to hotel.' }
+      ]);
+      document.getElementById('modal-package').classList.add('open');
+    });
+
+    window.editPackage = (id) => {
+      const p = currentPackages.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('pkg-modal-title').textContent = `Edit Tour: ${p.title}`;
+      document.getElementById('pkg-id').value = p.id;
+      document.getElementById('pkg-title').value = p.title;
+      document.getElementById('pkg-type').value = p.type || 'Cultural';
+      document.getElementById('pkg-tagline').value = p.tagline;
+      document.getElementById('pkg-duration').value = p.duration;
+      document.getElementById('pkg-price').value = p.price;
+      document.getElementById('pkg-vehicle').value = p.vehicle || 'corolla';
+      document.getElementById('pkg-image').value = p.image;
+      document.getElementById('pkg-img-preview').src = getImageUrl(p.image);
+
+      renderItineraryRows(p.itinerary || [
+        { day: 1, title: 'Day 1 Plan', description: 'Details' }
+      ]);
+
+      document.getElementById('modal-package').classList.add('open');
+    };
+
+    function renderItineraryRows(itinerary) {
+      const container = document.getElementById('itinerary-rows-container');
+      container.innerHTML = itinerary.map((item, idx) => `
+        <div class="itinerary-row flex gap-xs items-center" data-day="${item.day || (idx + 1)}">
+          <strong style="width: 60px;">Day ${item.day || (idx + 1)}:</strong>
+          <input type="text" class="form-input it-title" placeholder="Title" value="${item.title || ''}" style="flex: 1;" required>
+          <input type="text" class="form-input it-desc" placeholder="Activities" value="${item.description || ''}" style="flex: 2;" required>
+          <button type="button" class="btn btn--sm" style="color: #ef4444;" onclick="this.closest('.itinerary-row').remove()">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('btn-add-day').addEventListener('click', () => {
+      const rows = document.querySelectorAll('.itinerary-row');
+      const nextDay = rows.length + 1;
+      const div = document.createElement('div');
+      div.className = 'itinerary-row flex gap-xs items-center';
+      div.setAttribute('data-day', nextDay);
+      div.innerHTML = `
+        <strong style="width: 60px;">Day ${nextDay}:</strong>
+        <input type="text" class="form-input it-title" placeholder="Title" value="Day ${nextDay} Excursion" style="flex: 1;" required>
+        <input type="text" class="form-input it-desc" placeholder="Activities" value="Guided tour and exploration." style="flex: 2;" required>
+        <button type="button" class="btn btn--sm" style="color: #ef4444;" onclick="this.closest('.itinerary-row').remove()">&times;</button>
+      `;
+      document.getElementById('itinerary-rows-container').appendChild(div);
+    });
+
+    document.getElementById('form-package').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : 'Save';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving & Uploading...';
+      }
+
+      try {
+        const id = document.getElementById('pkg-id').value;
+        const fileInput = document.getElementById('pkg-file-input');
+        let imageVal = document.getElementById('pkg-image').value;
+
+        // Auto-upload file if selected
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          try {
+            const res = await uploadImage(fileInput.files[0], 'packages');
+            if (res && res.imagePath) {
+              imageVal = res.imagePath;
+              document.getElementById('pkg-image').value = imageVal;
+            }
+          } catch (uploadErr) {
+            console.error('Package image upload error:', uploadErr);
+          }
+        }
+
+        const itinerary = [];
+        document.querySelectorAll('.itinerary-row').forEach((row, i) => {
+          itinerary.push({
+            day: i + 1,
+            title: row.querySelector('.it-title').value,
+            description: row.querySelector('.it-desc').value
+          });
+        });
+
+        const payload = {
+          title: document.getElementById('pkg-title').value,
+          type: document.getElementById('pkg-type').value,
+          tagline: document.getElementById('pkg-tagline').value,
+          duration: parseInt(document.getElementById('pkg-duration').value),
+          price: parseFloat(document.getElementById('pkg-price').value),
+          vehicle: document.getElementById('pkg-vehicle').value,
+          image: imageVal,
+          includes: ["Private A/C Transport", "SLTDA Chauffeur Guide", "Fuel & Tolls", "All Taxes"],
+          excludes: ["International flights", "Personal expenses"],
+          itinerary
+        };
+
+        if (id) {
+          await updatePackage(id, payload);
+        } else {
+          payload.id = payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          await createPackage(payload);
+        }
+
+        document.getElementById('modal-package').classList.remove('open');
+        await loadAllData();
+        alert('Tour package and image successfully saved to live database!');
+      } catch (err) {
+        alert('Failed to save package: ' + (err.message || 'Unknown error'));
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origText;
+        }
+      }
+    });
+
+    window.deletePackageHandler = async (id) => {
+      if (confirm('Are you sure you want to delete this package from the live website?')) {
+        await deletePackage(id);
+        await loadAllData();
+      }
+    };
+
+    /* ── VEHICLES CRUD ── */
+    function renderVehiclesTable() {
+      document.getElementById('admin-vehicles-table').innerHTML = currentVehicles.map(v => `
+        <tr>
+          <td><img src="${getImageUrl(v.image)}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 8px; vertical-align: middle;"><strong>${v.name}</strong></td>
+          <td>${v.type}</td>
+          <td>${v.seats} Seats / ${v.luggage}</td>
+          <td><strong>$${v.pricePerDay}</strong> / day</td>
+          <td>
+            <span class="status-badge ${v.available !== false ? 'status-booked' : 'status-closed'}">
+              ${v.available !== false ? 'Available' : 'Unavailable'}
+            </span>
+          </td>
+          <td>
+            <div class="flex gap-xs">
+              <button class="btn btn--outline btn--sm" onclick="window.editVehicle('${v.id}')">Edit</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteVehicleHandler('${v.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('btn-add-vehicle').addEventListener('click', () => {
+      document.getElementById('veh-modal-title').textContent = 'Add New Vehicle';
+      document.getElementById('form-vehicle').reset();
+      document.getElementById('veh-id').value = '';
+      document.getElementById('veh-image').value = 'vehicles/prius.jpg';
+      document.getElementById('veh-img-preview').src = getImageUrl('vehicles/prius.jpg');
+      document.getElementById('modal-vehicle').classList.add('open');
+    });
+
+    window.editVehicle = (id) => {
+      const v = currentVehicles.find(x => x.id === id);
+      if (!v) return;
+      document.getElementById('veh-modal-title').textContent = `Edit Vehicle: ${v.name}`;
+      document.getElementById('veh-id').value = v.id;
+      document.getElementById('veh-name').value = v.name;
+      document.getElementById('veh-type').value = v.type;
+      document.getElementById('veh-seats').value = v.seats;
+      document.getElementById('veh-luggage').value = v.luggage;
+      document.getElementById('veh-price').value = v.pricePerDay;
+      document.getElementById('veh-image').value = v.image;
+      document.getElementById('veh-img-preview').src = getImageUrl(v.image);
+      document.getElementById('veh-desc').value = v.description || '';
+      document.getElementById('veh-available').checked = v.available !== false;
+      document.getElementById('modal-vehicle').classList.add('open');
+    };
+
+    document.getElementById('form-vehicle').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : 'Save';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving & Uploading...';
+      }
+
+      try {
+        const id = document.getElementById('veh-id').value;
+        const fileInput = document.getElementById('veh-file-input');
+        let imageVal = document.getElementById('veh-image').value;
+
+        // Auto-upload file if selected
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          try {
+            const res = await uploadImage(fileInput.files[0], 'vehicles');
+            if (res && res.imagePath) {
+              imageVal = res.imagePath;
+              document.getElementById('veh-image').value = imageVal;
+            }
+          } catch (uploadErr) {
+            console.error('Vehicle image upload error:', uploadErr);
+          }
+        }
+
+        const payload = {
+          name: document.getElementById('veh-name').value,
+          type: document.getElementById('veh-type').value,
+          seats: parseInt(document.getElementById('veh-seats').value),
+          luggage: document.getElementById('veh-luggage').value,
+          pricePerDay: parseFloat(document.getElementById('veh-price').value),
+          image: imageVal,
+          description: document.getElementById('veh-desc').value,
+          available: document.getElementById('veh-available').checked
+        };
+
+        if (id) {
+          await updateVehicle(id, payload);
+        } else {
+          payload.id = payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          await createVehicle(payload);
+        }
+
+        document.getElementById('modal-vehicle').classList.remove('open');
+        await loadAllData();
+        alert('Vehicle fleet updated successfully!');
+      } catch (err) {
+        alert('Failed to save vehicle: ' + (err.message || 'Unknown error'));
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origText;
+        }
+      }
+    });
+
+    window.deleteVehicleHandler = async (id) => {
+      if (confirm('Delete this vehicle from fleet?')) {
+        await deleteVehicle(id);
+        await loadAllData();
+      }
+    };
+
+    /* ── DESTINATIONS CRUD ── */
+    function renderDestinationsTable() {
+      document.getElementById('admin-destinations-table').innerHTML = currentDestinations.map(d => `
+        <tr>
+          <td><img src="${getImageUrl(d.image)}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 8px; vertical-align: middle;"><strong>${d.name}</strong></td>
+          <td>${d.region}</td>
+          <td>${d.typicalDuration}</td>
+          <td>${d.bestTime}</td>
+          <td>
+            <div class="flex gap-xs">
+              <button class="btn btn--outline btn--sm" onclick="window.editDestination('${d.id}')">Edit</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteDestinationHandler('${d.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('btn-add-destination').addEventListener('click', () => {
+      document.getElementById('dest-modal-title').textContent = 'Add New Destination';
+      document.getElementById('form-destination').reset();
+      document.getElementById('dest-id').value = '';
+      document.getElementById('dest-lat').value = '7.8731';
+      document.getElementById('dest-lng').value = '80.7718';
+      document.getElementById('dest-image').value = 'destinations/sigiriya.jpg';
+      document.getElementById('dest-img-preview').src = getImageUrl('destinations/sigiriya.jpg');
+      document.getElementById('modal-destination').classList.add('open');
+      initOrUpdateLocationPicker(7.8731, 80.7718);
+    });
+
+    window.editDestination = (id) => {
+      const d = currentDestinations.find(x => x.id === id);
+      if (!d) return;
+      document.getElementById('dest-modal-title').textContent = `Edit Destination: ${d.name}`;
+      document.getElementById('dest-id').value = d.id;
+      document.getElementById('dest-name').value = d.name;
+      document.getElementById('dest-region').value = d.region;
+      document.getElementById('dest-short').value = d.shortDesc || '';
+      document.getElementById('dest-desc').value = d.description || '';
+      const lat = d.lat || 7.8731;
+      const lng = d.lng || 80.7718;
+      document.getElementById('dest-lat').value = lat;
+      document.getElementById('dest-lng').value = lng;
+      document.getElementById('dest-duration').value = d.typicalDuration || '1 Day';
+      document.getElementById('dest-image').value = d.image || 'destinations/sigiriya.jpg';
+      document.getElementById('dest-img-preview').src = getImageUrl(d.image || 'destinations/sigiriya.jpg');
+      document.getElementById('modal-destination').classList.add('open');
+      initOrUpdateLocationPicker(lat, lng);
+    };
+
+    document.getElementById('form-destination').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : 'Save';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving & Uploading...';
+      }
+
+      try {
+        const id = document.getElementById('dest-id').value;
+        const fileInput = document.getElementById('dest-file-input');
+        let imageVal = document.getElementById('dest-image').value;
+
+        // Auto-upload file if selected
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          try {
+            const res = await uploadImage(fileInput.files[0], 'destinations');
+            if (res && res.imagePath) {
+              imageVal = res.imagePath;
+              document.getElementById('dest-image').value = imageVal;
+            }
+          } catch (uploadErr) {
+            console.error('Destination image upload error:', uploadErr);
+          }
+        }
+
+        const payload = {
+          name: document.getElementById('dest-name').value,
+          region: document.getElementById('dest-region').value,
+          shortDesc: document.getElementById('dest-short').value,
+          description: document.getElementById('dest-desc').value,
+          lat: parseFloat(document.getElementById('dest-lat').value),
+          lng: parseFloat(document.getElementById('dest-lng').value),
+          typicalDuration: document.getElementById('dest-duration').value,
+          bestTime: 'Year-round',
+          image: imageVal
+        };
+
+        if (id) {
+          await updateDestination(id, payload);
+        } else {
+          payload.id = payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          await createDestination(payload);
+        }
+
+        document.getElementById('modal-destination').classList.remove('open');
+        await loadAllData();
+        alert('Destination updated on interactive map & customizer!');
+      } catch (err) {
+        alert('Failed to save destination: ' + (err.message || 'Unknown error'));
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origText;
+        }
+      }
+    });
+
+    window.deleteDestinationHandler = async (id) => {
+      if (confirm('Delete destination from map and website?')) {
+        await deleteDestination(id);
+        await loadAllData();
+      }
+    };
+
+    /* ── TESTIMONIALS & REVIEWS CRUD ── */
+    function renderTestimonialsTable() {
+      const tbody = document.getElementById('testimonials-table-body');
+      if (!tbody) return;
+
+      if (!currentTestimonials || currentTestimonials.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; color: #9ca3af; padding: 2rem;">
+              No traveler reviews yet. Click "+ Add New Testimonial" above to add guest reviews!
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = currentTestimonials.map(t => `
+        <tr>
+          <td>
+            <img src="${getImageUrl(t.avatar)}" alt="${t.name}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0;">
+          </td>
+          <td><strong>${t.name}</strong></td>
+          <td>${t.origin || 'International Traveler'}</td>
+          <td>
+            <span style="color: #f59e0b; font-size: 14px;">${'★'.repeat(t.rating || 5)}${'☆'.repeat(Math.max(0, 5 - (t.rating || 5)))}</span>
+          </td>
+          <td style="max-width: 320px; font-size: 12px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            "${t.text}"
+          </td>
+          <td>
+            <span class="status-badge ${t.featured !== false ? 'status-booked' : 'status-cancelled'}">
+              ${t.featured !== false ? 'Featured Live' : 'Hidden'}
+            </span>
+          </td>
+          <td>
+            <div class="flex gap-xs">
+              <button class="btn btn--outline btn--sm" onclick="window.editTestimonial('${t.id}')">Edit</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteTestimonialHandler('${t.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    const btnAddTestimonial = document.getElementById('btn-add-testimonial');
+    if (btnAddTestimonial) {
+      btnAddTestimonial.addEventListener('click', () => {
+        document.getElementById('testimonial-modal-title').textContent = 'Add New Traveler Review';
+        document.getElementById('form-testimonial').reset();
+        document.getElementById('testimonial-id').value = '';
+        document.getElementById('testimonial-rating').value = '5';
+        document.getElementById('testimonial-order').value = '0';
+        document.getElementById('testimonial-avatar').value = 'hero/beach.jpg';
+        document.getElementById('testimonial-img-preview').src = getImageUrl('hero/beach.jpg');
+        document.getElementById('modal-testimonial').classList.add('open');
+      });
+    }
+
+    window.editTestimonial = (id) => {
+      const t = currentTestimonials.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById('testimonial-modal-title').textContent = `Edit Review: ${t.name}`;
+      document.getElementById('testimonial-id').value = t.id;
+      document.getElementById('testimonial-name').value = t.name;
+      document.getElementById('testimonial-origin').value = t.origin || '';
+      document.getElementById('testimonial-rating').value = t.rating || 5;
+      document.getElementById('testimonial-order').value = t.order || 0;
+      document.getElementById('testimonial-avatar').value = t.avatar || 'hero/beach.jpg';
+      document.getElementById('testimonial-img-preview').src = getImageUrl(t.avatar || 'hero/beach.jpg');
+      document.getElementById('testimonial-text').value = t.text || '';
+      document.getElementById('modal-testimonial').classList.add('open');
+    };
+
+    const formTestimonial = document.getElementById('form-testimonial');
+    if (formTestimonial) {
+      formTestimonial.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const origText = submitBtn ? submitBtn.textContent : 'Save & Publish Review';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving & Uploading...';
+        }
+
+        try {
+          const id = document.getElementById('testimonial-id').value;
+          const fileInput = document.getElementById('testimonial-file-input');
+          let avatarVal = document.getElementById('testimonial-avatar').value;
+
+          // Auto-upload avatar file if selected
+          if (fileInput && fileInput.files && fileInput.files[0]) {
+            try {
+              const res = await uploadImage(fileInput.files[0], 'testimonials');
+              if (res && res.imagePath) {
+                avatarVal = res.imagePath;
+                document.getElementById('testimonial-avatar').value = avatarVal;
+              }
+            } catch (uploadErr) {
+              console.error('Testimonial avatar upload error:', uploadErr);
+            }
+          }
+
+          const payload = {
+            name: document.getElementById('testimonial-name').value,
+            origin: document.getElementById('testimonial-origin').value,
+            rating: parseInt(document.getElementById('testimonial-rating').value) || 5,
+            order: parseInt(document.getElementById('testimonial-order').value) || 0,
+            text: document.getElementById('testimonial-text').value,
+            avatar: avatarVal,
+            featured: true
+          };
+
+          if (id) {
+            await updateTestimonial(id, payload);
+          } else {
+            payload.id = `test-${Date.now()}`;
+            await createTestimonial(payload);
+          }
+
+          document.getElementById('modal-testimonial').classList.remove('open');
+          await loadAllData();
+          alert('Testimonial published live to website homepage & about page!');
+        } catch (err) {
+          alert('Failed to save testimonial: ' + (err.message || 'Unknown error'));
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = origText;
+          }
+        }
+      });
+    }
+
+    window.deleteTestimonialHandler = async (id) => {
+      if (confirm('Delete this traveler review from the website?')) {
+        await deleteTestimonial(id);
+        await loadAllData();
+      }
+    };
+  </script>
+</body>
+</html>
