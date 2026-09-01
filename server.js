@@ -22,8 +22,17 @@ import { apiLimiter, authLimiter, sanitizeInput } from './middleware/security.js
 // Cloudinary
 import { uploadToCloudinary, isCloudinaryConfigured } from './config/cloudinary.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let currentDir = process.cwd();
+try {
+  if (typeof import.meta !== 'undefined' && import.meta && import.meta.url) {
+    currentDir = path.dirname(fileURLToPath(import.meta.url));
+  } else if (typeof __dirname !== 'undefined') {
+    currentDir = __dirname;
+  }
+} catch (e) {
+  currentDir = process.cwd();
+}
+const __dirname = currentDir;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
