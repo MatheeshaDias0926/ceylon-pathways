@@ -196,11 +196,6 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
-  .packages-scroll .card {
-    min-width: 280px;
-  }
-}
 
 /* ── CTA BANNER ── */
 .cta-banner {
@@ -788,18 +783,19 @@ main:has(.package-hero) {
     margin-bottom: 1rem !important;
   }
 
-  /* Transparent glass-like buttons */
+  /* Hero Action Buttons */
   .hero__actions .btn--cta {
     width: 100% !important;
     min-height: 44px !important;
     justify-content: center !important;
     padding: 0.75rem 1.25rem !important;
     font-size: 0.9rem !important;
-    background: rgba(206, 115, 48, 0.75) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: var(--color-cta) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
     color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(216, 90, 48, 0.4) !important;
   }
 
   .hero__actions .btn--white,
@@ -939,7 +935,18 @@ main:has(.package-hero) {
     white-space: nowrap !important;
   }
 
-  /* ── Packages Swiper Carousel ── */
+  /* ── Mobile Navbar Logo ── */
+  .navbar__logo {
+    font-size: 1.15rem !important;
+    gap: 0.4rem !important;
+  }
+
+  .navbar__logo svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  /* ── Packages & Vehicles Swiper Carousel ── */
   .packages-scroll {
     gap: 1rem;
     padding: 0.75rem 1rem 1.25rem 1rem;
@@ -947,8 +954,82 @@ main:has(.package-hero) {
   }
 
   .packages-scroll .card {
-    min-width: calc(85vw - 1rem);
-    max-width: 320px;
+    min-width: calc(82vw - 1rem);
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  /* Compact vehicle card elements on mobile matching tour packages size */
+  .packages-scroll .card--vehicle {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .packages-scroll .card--vehicle .card__image-wrap {
+    background: #fdfbf7;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .packages-scroll .card--vehicle .card__image {
+    max-height: 125px !important;
+    width: 100% !important;
+    object-fit: contain !important;
+    padding: 0.35rem !important;
+  }
+
+  .packages-scroll .card--vehicle .card__body {
+    padding: 0.75rem !important;
+    flex: 1 !important;
+  }
+
+  .packages-scroll .card--vehicle .card__title {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .packages-scroll .card--vehicle .card__desc {
+    font-size: 0.78rem !important;
+    line-height: 1.35 !important;
+    margin-bottom: 0 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--color-text-muted);
+  }
+
+  .packages-scroll .card--vehicle .card__specs {
+    padding: 0.5rem 0.6rem !important;
+    gap: 0.35rem !important;
+  }
+
+  .packages-scroll .card--vehicle .card__spec-label {
+    font-size: 0.55rem !important;
+  }
+
+  .packages-scroll .card--vehicle .card__spec-value {
+    font-size: 0.78rem !important;
+  }
+
+  .packages-scroll .card--vehicle .card__footer {
+    padding: 0.6rem 0.75rem !important;
+    margin-top: auto !important;
+  }
+
+  .packages-scroll .card--vehicle .card__price {
+    font-size: 1.15rem !important;
+  }
+
+  .packages-scroll .card--vehicle .card__footer .btn {
+    padding: 0.45rem 0.85rem !important;
+    font-size: 0.8rem !important;
+    min-height: 36px !important;
   }
 
   /* ── Customizer Wizard Step Nav ── */

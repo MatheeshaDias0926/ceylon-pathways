@@ -56,13 +56,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="./css/variables.css?v=5.0">
-  <link rel="stylesheet" href="./css/reset.css?v=5.0">
-  <link rel="stylesheet" href="./css/typography.css?v=5.0">
-  <link rel="stylesheet" href="./css/layout.css?v=5.0">
-  <link rel="stylesheet" href="./css/components.css?v=5.0">
-  <link rel="stylesheet" href="./css/animations.css?v=5.0">
-  <link rel="stylesheet" href="./css/pages.css?v=5.0">
+  <link rel="stylesheet" href="./css/variables.css?v=6.0">
+  <link rel="stylesheet" href="./css/reset.css?v=6.0">
+  <link rel="stylesheet" href="./css/typography.css?v=6.0">
+  <link rel="stylesheet" href="./css/layout.css?v=6.0">
+  <link rel="stylesheet" href="./css/components.css?v=6.0">
+  <link rel="stylesheet" href="./css/animations.css?v=6.0">
+  <link rel="stylesheet" href="./css/pages.css?v=6.0">
 </head>
 <body>
 
@@ -262,7 +262,7 @@
           <p class="section-subtitle mx-auto">Every tour includes private climate-controlled transport with insurance and a friendly, English-speaking tourist chauffeur.</p>
         </div>
 
-        <div class="grid grid-3" id="home-vehicles-grid">
+        <div class="packages-scroll vehicles-scroll" id="home-vehicles-grid">
           <!-- Dynamically populated via JS -->
         </div>
 
@@ -457,132 +457,148 @@
     import { convertPrice, formatCurrency, createStars } from './js/utils.js';
 
     async function loadHomeData() {
-      // Fetch and render packages
+      // Fire ALL API calls in parallel for faster loading
+      const [pkgResult, destResult, vehResult, testResult] = await Promise.allSettled([
+        getPackages(),
+        getDestinations(),
+        getVehicles(),
+        getTestimonials()
+      ]);
+
+      // Render packages
       try {
-        const packages = await getPackages();
-        const pkgContainer = document.getElementById('packages-carousel-container');
-        if (pkgContainer && packages && packages.length) {
-          pkgContainer.innerHTML = packages.map(pkg => `
-            <div class="card card--package">
-              <div class="card__image-wrap">
-                ${pkg.popular ? `<span class="card__badge">Most Popular</span>` : ''}
-                <img src="${getImageUrl(pkg.image)}" alt="${pkg.title}" class="card__image" loading="lazy">
-              </div>
-              <div class="card__body">
-                <span class="card__tag">${pkg.type} &bull; ${pkg.duration} Days</span>
-                <h3 class="card__title"><a href="./package-detail.html?id=${pkg.id}">${pkg.title}</a></h3>
-                <p class="card__desc">${pkg.tagline || ''}</p>
-                <div class="card__meta">
-                  <span class="card__meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    ${pkg.duration} Days / ${pkg.duration - 1} Nights
-                  </span>
-                  <span class="card__meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-                    Private Chauffeur
-                  </span>
+        if (pkgResult.status === 'fulfilled') {
+          const packages = pkgResult.value;
+          const pkgContainer = document.getElementById('packages-carousel-container');
+          if (pkgContainer && packages && packages.length) {
+            pkgContainer.innerHTML = packages.map(pkg => `
+              <div class="card card--package">
+                <div class="card__image-wrap">
+                  ${pkg.popular ? `<span class="card__badge">Most Popular</span>` : ''}
+                  <img src="${getImageUrl(pkg.image)}" alt="${pkg.title}" class="card__image" loading="lazy">
+                </div>
+                <div class="card__body">
+                  <span class="card__tag">${pkg.type} &bull; ${pkg.duration} Days</span>
+                  <h3 class="card__title"><a href="./package-detail.html?id=${pkg.id}">${pkg.title}</a></h3>
+                  <p class="card__desc">${pkg.tagline || ''}</p>
+                  <div class="card__meta">
+                    <span class="card__meta-item">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      ${pkg.duration} Days / ${pkg.duration - 1} Nights
+                    </span>
+                    <span class="card__meta-item">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                      Private Chauffeur
+                    </span>
+                  </div>
+                </div>
+                <div class="card__footer">
+                  <div>
+                    <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Starting from</span>
+                    <span class="card__price" data-usd="${pkg.price}">${convertPrice(pkg.price)} <small>/ person</small></span>
+                  </div>
+                  <div class="flex gap-xs">
+                    <a href="./package-detail.html?id=${pkg.id}" class="btn btn--outline btn--sm">Details</a>
+                    <a href="./package-detail.html?id=${pkg.id}#book" class="btn btn--cta btn--sm">Book</a>
+                  </div>
                 </div>
               </div>
-              <div class="card__footer">
-                <div>
-                  <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Starting from</span>
-                  <span class="card__price" data-usd="${pkg.price}">${convertPrice(pkg.price)} <small>/ person</small></span>
-                </div>
-                <div class="flex gap-xs">
-                  <a href="./package-detail.html?id=${pkg.id}" class="btn btn--outline btn--sm">Details</a>
-                  <a href="./package-detail.html?id=${pkg.id}#book" class="btn btn--cta btn--sm">Book</a>
-                </div>
-              </div>
-            </div>
-          `).join('');
+            `).join('');
+          }
         }
       } catch (err) {
-        console.error('Error loading packages:', err);
+        console.error('Error rendering packages:', err);
       }
 
-      // Fetch and render destinations
+      // Render destinations
       try {
-        const destinations = await getDestinations();
-        const destGrid = document.getElementById('home-destinations-grid');
-        if (destGrid && destinations && destinations.length) {
-          destGrid.innerHTML = destinations.slice(0, 5).map(dest => `
-            <a href="./destinations.html#${dest.id}" class="card card--destination">
-              <img src="${getImageUrl(dest.image)}" alt="${dest.name}" class="card__image" loading="lazy">
-              <div class="card__overlay">
-                <span class="card__tag" style="color: var(--color-accent);">${dest.region}</span>
-                <h3 class="card__title">${dest.name}</h3>
-                <p class="card__desc">${dest.shortDesc || ''}</p>
-              </div>
-            </a>
-          `).join('');
+        if (destResult.status === 'fulfilled') {
+          const destinations = destResult.value;
+          const destGrid = document.getElementById('home-destinations-grid');
+          if (destGrid && destinations && destinations.length) {
+            destGrid.innerHTML = destinations.slice(0, 5).map(dest => `
+              <a href="./destinations.html#${dest.id}" class="card card--destination">
+                <img src="${getImageUrl(dest.image)}" alt="${dest.name}" class="card__image" loading="lazy">
+                <div class="card__overlay">
+                  <span class="card__tag" style="color: var(--color-accent);">${dest.region}</span>
+                  <h3 class="card__title">${dest.name}</h3>
+                  <p class="card__desc">${dest.shortDesc || ''}</p>
+                </div>
+              </a>
+            `).join('');
+          }
         }
       } catch (err) {
-        console.error('Error loading destinations:', err);
+        console.error('Error rendering destinations:', err);
       }
 
-      // Fetch and render vehicles
+      // Render vehicles (now in horizontal scroll)
       try {
-        const vehicles = await getVehicles();
-        const vehGrid = document.getElementById('home-vehicles-grid');
-        if (vehGrid && vehicles && vehicles.length) {
-          vehGrid.innerHTML = vehicles.filter(v => v.available !== false).slice(0, 3).map(veh => `
-            <div class="card card--vehicle">
-              <div class="card__image-wrap">
-                <img src="${getImageUrl(veh.image)}" alt="${veh.name}" class="card__image" loading="lazy">
-              </div>
-              <div class="card__body">
-                <h3 class="card__title">${veh.name}</h3>
-                <p class="card__desc">${veh.description || ''}</p>
-              </div>
-              <div class="card__specs">
-                <div class="card__spec">
-                  <span class="card__spec-label">Capacity</span>
-                  <span class="card__spec-value">${veh.seats} Seats</span>
+        if (vehResult.status === 'fulfilled') {
+          const vehicles = vehResult.value;
+          const vehGrid = document.getElementById('home-vehicles-grid');
+          if (vehGrid && vehicles && vehicles.length) {
+            vehGrid.innerHTML = vehicles.filter(v => v.available !== false).slice(0, 6).map(veh => `
+              <div class="card card--vehicle">
+                <div class="card__image-wrap">
+                  <img src="${getImageUrl(veh.image)}" alt="${veh.name}" class="card__image" loading="lazy">
                 </div>
-                <div class="card__spec">
-                  <span class="card__spec-label">Luggage</span>
-                  <span class="card__spec-value">${veh.luggage}</span>
+                <div class="card__body">
+                  <h3 class="card__title">${veh.name}</h3>
+                  <p class="card__desc">${veh.description || ''}</p>
                 </div>
-                <div class="card__spec">
-                  <span class="card__spec-label">Comfort</span>
-                  <span class="card__spec-value">${veh.ac !== false ? 'A/C Included' : 'Standard'}</span>
+                <div class="card__specs">
+                  <div class="card__spec">
+                    <span class="card__spec-label">Capacity</span>
+                    <span class="card__spec-value">${veh.seats} Seats</span>
+                  </div>
+                  <div class="card__spec">
+                    <span class="card__spec-label">Luggage</span>
+                    <span class="card__spec-value">${veh.luggage}</span>
+                  </div>
+                  <div class="card__spec">
+                    <span class="card__spec-label">Comfort</span>
+                    <span class="card__spec-value">${veh.ac !== false ? 'A/C Included' : 'Standard'}</span>
+                  </div>
+                </div>
+                <div class="card__footer">
+                  <div>
+                    <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Per Day Rate</span>
+                    <span class="card__price" data-usd="${veh.pricePerDay}">${convertPrice(veh.pricePerDay)} <small>/ day</small></span>
+                  </div>
+                  <a href="./customize.html?vehicle=${veh.id}" class="btn btn--cta btn--sm">Select Vehicle</a>
                 </div>
               </div>
-              <div class="card__footer">
-                <div>
-                  <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Per Day Rate</span>
-                  <span class="card__price" data-usd="${veh.pricePerDay}">${convertPrice(veh.pricePerDay)} <small>/ day</small></span>
-                </div>
-                <a href="./customize.html?vehicle=${veh.id}" class="btn btn--cta btn--sm">Select Vehicle</a>
-              </div>
-            </div>
-          `).join('');
+            `).join('');
+          }
         }
       } catch (err) {
-        console.error('Error loading vehicles:', err);
+        console.error('Error rendering vehicles:', err);
       }
 
-      // Fetch and render testimonials
+      // Render testimonials
       try {
-        const testimonials = await getTestimonials();
-        const testGrid = document.getElementById('home-testimonials-grid');
-        if (testGrid && testimonials && testimonials.length) {
-          testGrid.innerHTML = testimonials.filter(t => t.featured !== false).slice(0, 6).map(t => `
-            <div class="testimonial">
-              <div class="testimonial__header">
-                <img src="${getImageUrl(t.avatar)}" alt="${t.name}" class="testimonial__avatar" loading="lazy">
-                <div>
-                  <div class="testimonial__name">${t.name}</div>
-                  <div class="testimonial__origin">${t.origin}</div>
-                  <div class="stars">${createStars(t.rating)}</div>
+        if (testResult.status === 'fulfilled') {
+          const testimonials = testResult.value;
+          const testGrid = document.getElementById('home-testimonials-grid');
+          if (testGrid && testimonials && testimonials.length) {
+            testGrid.innerHTML = testimonials.filter(t => t.featured !== false).slice(0, 6).map(t => `
+              <div class="testimonial">
+                <div class="testimonial__header">
+                  <img src="${getImageUrl(t.avatar)}" alt="${t.name}" class="testimonial__avatar" loading="lazy">
+                  <div>
+                    <div class="testimonial__name">${t.name}</div>
+                    <div class="testimonial__origin">${t.origin}</div>
+                    <div class="stars">${createStars(t.rating)}</div>
+                  </div>
                 </div>
+                <p class="testimonial__text">${t.text}</p>
               </div>
-              <p class="testimonial__text">${t.text}</p>
-            </div>
-          `).join('');
+            `).join('');
+          }
         }
       } catch (err) {
-        console.error('Error loading testimonials:', err);
+        console.error('Error rendering testimonials:', err);
       }
     }
 
