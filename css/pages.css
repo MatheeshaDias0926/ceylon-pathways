@@ -848,25 +848,6 @@ main:has(.package-hero) {
     font-size: 0.82rem !important;
   }
 
-  /* Fix iOS date input rendering */
-  .hero__search-date,
-  .hero__search-input[type="date"] {
-    max-width: 100% !important;
-    width: 100% !important;
-    min-height: 40px !important;
-    color: #1e293b !important;
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    background: rgba(255, 255, 255, 0.85) !important;
-    position: relative !important;
-  }
-
-  /* Ensure iOS date text is visible */
-  .hero__search-input[type="date"]::-webkit-date-and-time-value {
-    text-align: left !important;
-    color: #1e293b !important;
-  }
-
   .hero__search-btn {
     width: 100% !important;
     min-height: 40px !important;
@@ -1030,6 +1011,28 @@ main:has(.package-hero) {
     padding: 0.45rem 0.85rem !important;
     font-size: 0.8rem !important;
     min-height: 36px !important;
+  }
+
+  /* Compact testimonial card elements on mobile matching horizontal scroll */
+  .testimonials-scroll .testimonial {
+    min-width: calc(82vw - 1rem) !important;
+    max-width: 300px !important;
+    flex-shrink: 0 !important;
+    scroll-snap-align: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 1.25rem 1rem !important;
+  }
+
+  .testimonials-scroll .testimonial__text {
+    font-size: 0.82rem !important;
+    line-height: 1.4 !important;
+    padding-left: 1.25rem !important;
+  }
+
+  .testimonials-scroll .testimonial__avatar {
+    width: 44px !important;
+    height: 44px !important;
   }
 
   /* ── Customizer Wizard Step Nav ── */

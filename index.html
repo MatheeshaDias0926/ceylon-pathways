@@ -56,13 +56,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="./css/variables.css?v=6.0">
-  <link rel="stylesheet" href="./css/reset.css?v=6.0">
-  <link rel="stylesheet" href="./css/typography.css?v=6.0">
-  <link rel="stylesheet" href="./css/layout.css?v=6.0">
-  <link rel="stylesheet" href="./css/components.css?v=6.0">
-  <link rel="stylesheet" href="./css/animations.css?v=6.0">
-  <link rel="stylesheet" href="./css/pages.css?v=6.0">
+  <link rel="stylesheet" href="./css/variables.css?v=7.0">
+  <link rel="stylesheet" href="./css/reset.css?v=7.0">
+  <link rel="stylesheet" href="./css/typography.css?v=7.0">
+  <link rel="stylesheet" href="./css/layout.css?v=7.0">
+  <link rel="stylesheet" href="./css/components.css?v=7.0">
+  <link rel="stylesheet" href="./css/animations.css?v=7.0">
+  <link rel="stylesheet" href="./css/pages.css?v=7.0">
 </head>
 <body>
 
@@ -141,7 +141,7 @@
       <div class="hero__content container">
         <span class="hero__tagline">SLTDA Registered Verified Tour Operator #TS/2026/894</span>
         <h1 class="hero__title">Experience the Magic of Sri Lanka, Tailored Just for You</h1>
-        <p class="hero__subtitle">From ancient sky palaces and misty tea hills to wild leopard safaris and golden shores — explore paradise with private chauffeur-guides and curated luxury itineraries.</p>
+        <p class="hero__subtitle">From ancient sky palaces and misty tea hills to wild leopard safaris and golden shores explore paradise with private chauffeur-guides and curated luxury itineraries.</p>
         
         <div class="hero__actions">
           <a href="./customize.html" class="btn btn--cta btn--lg">
@@ -156,7 +156,6 @@
         <!-- Quick Trip Search Bar Overlay -->
         <form class="hero__search" id="hero-search-form" action="./customize.html" method="GET">
           <input type="text" name="destination" class="hero__search-input" placeholder="Where do you want to go? (e.g. Sigiriya, Ella, Yala)" aria-label="Destination query">
-          <input type="date" name="start_date" class="hero__search-input hero__search-date" aria-label="Estimated trip start date">
           <button type="submit" class="hero__search-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             Find Tours
@@ -172,8 +171,8 @@
       </div>
     </section>
 
-    <!-- Trust & Stats Bar -->
-    <section class="section--sm" style="background: #ffffff; border-bottom: var(--border-light);">
+    <!-- Trust Stats Bar -->
+    <section class="section--sm" style="background: var(--color-card); border-bottom: var(--border-light);">
       <div class="container">
         <div class="stats-bar">
           <div class="stat">
@@ -223,22 +222,21 @@
       <div class="cta-banner">
         <span class="section-label" style="color: var(--color-accent);">Interactive Trip Builder</span>
         <h2>Want a 100% Unique Itinerary?</h2>
-        <p>Choose your favourite destinations, select a comfortable vehicle from our fleet, pick your travel dates, and get an instant custom quote with day-by-day plan in under 2 minutes.</p>
-        <a href="./customize.html" class="btn btn--cta btn--lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          Launch Tour Customizer
-        </a>
+        <p>Pick your destinations, vehicle class, hotel standard, and activities. Get a personalized itinerary and guaranteed transparent quote within 24 hours.</p>
+        <div class="mt-lg">
+          <a href="./customize.html" class="btn btn--cta btn--lg">Open Tour Customizer &rarr;</a>
+        </div>
       </div>
     </section>
 
-    <!-- Top Destinations Grid -->
-    <section class="section animate-on-scroll" id="destinations-section">
+    <!-- Top Sri Lanka Destinations Grid -->
+    <section class="section animate-on-scroll">
       <div class="container">
         <div class="flex justify-between items-end mb-xl">
           <div>
-            <span class="section-label">Island Wonders</span>
-            <h2 class="section-title">Iconic Destinations to Discover</h2>
-            <p class="section-subtitle">From mist-shrouded tea plantations to ancient kingdoms and sunny surf breaks, Sri Lanka packs unmatched diversity into one tropical island.</p>
+            <span class="section-label">Explore the Island</span>
+            <h2 class="section-title">Iconic Sri Lankan Destinations</h2>
+            <p class="section-subtitle">From misty tea country peaks to UNESCO heritage fortress cities and golden coastal shores.</p>
           </div>
           <a href="./destinations.html" class="btn btn--outline hide-mobile">Explore All Destinations &rarr;</a>
         </div>
@@ -282,7 +280,7 @@
           <p class="section-subtitle mx-auto">Read authentic reviews from guests across the globe who explored Sri Lanka with our private chauffeur guides.</p>
         </div>
 
-        <div class="grid grid-3" id="home-testimonials-grid">
+        <div class="packages-scroll testimonials-scroll" id="home-testimonials-grid">
           <!-- Dynamically populated via JS -->
         </div>
 
