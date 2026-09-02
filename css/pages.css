@@ -123,6 +123,10 @@
   color: var(--color-text-light);
 }
 
+.hero__search-date {
+  max-width: 170px;
+}
+
 .hero__search-btn {
   background: var(--color-cta);
   color: #fff;
@@ -712,41 +716,157 @@ main:has(.package-hero) {
    100% MOBILE-OPTIMIZED RESPONSIVE ENHANCEMENTS (<= 768px)
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* ── Hero Section ── */
+  /* ── Hero Section (Full Content Visibility, Zero Clipping) ── */
   .hero {
-    min-height: auto;
-    padding: calc(var(--nav-height) + 2rem) 0 3rem;
+    height: auto !important;
+    min-height: 100svh;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-top: 0 !important;
+    padding-top: calc(var(--nav-height) + 1.25rem) !important;
+    padding-bottom: 2rem !important;
+  }
+
+  .hero__content {
+    height: auto !important;
+    justify-content: flex-start !important;
+    padding: 0.5rem 1rem 1rem 1rem !important;
+  }
+
+  .hero__tagline {
+    font-size: 0.72rem;
+    line-height: 1.35;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 6px 14px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffd166;
+    max-width: 100%;
+    word-break: break-word;
   }
 
   .hero__title {
-    font-size: clamp(2rem, 8vw, 2.75rem);
-    line-height: 1.15;
+    font-size: clamp(1.75rem, 6.5vw, 2.35rem);
+    line-height: 1.18;
     letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    max-width: 100%;
   }
 
   .hero__subtitle {
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin-bottom: 1.25rem;
+    max-width: 100%;
+    color: rgba(255, 255, 255, 0.92);
   }
 
+  .hero__actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.85rem 1.25rem;
+    font-size: 0.92rem;
+  }
+
+  /* ── Where Do You Want to Go Search Box (Uncovered & Fully Visible) ── */
   .hero__search {
     flex-direction: column;
-    padding: 1rem;
-    gap: 0.75rem;
+    padding: 0.85rem;
+    gap: 0.65rem;
     border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    max-width: 100%;
+    width: 100%;
   }
 
-  .hero__search-group {
+  .hero__search-input {
     width: 100%;
-    border-right: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    padding: 0 0 0.75rem 0;
+    font-size: 16px !important;
+    min-height: 44px;
+    padding: 0.75rem 0.875rem;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    color: #1e293b;
+  }
+
+  .hero__search-input[type="date"] {
+    max-width: 100% !important;
+    width: 100%;
   }
 
   .hero__search-btn {
     width: 100%;
-    min-height: 48px;
+    min-height: 46px;
     justify-content: center;
+    font-size: 0.95rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+  }
+
+  .hero__indicators {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  /* ── Stats Bar: Single Horizontal Line, Subtle & Compact ── */
+  .stats-bar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    padding: 0.85rem 0 !important;
+  }
+
+  .stat {
+    flex: 1 1 0;
+    text-align: center;
+    padding: 0 4px !important;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .stat:last-child {
+    border-right: none;
+  }
+
+  .stat__number {
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    color: var(--color-primary);
+    margin-bottom: 2px !important;
+    line-height: 1.1;
+    font-family: var(--font-body);
+  }
+
+  .stat__label {
+    font-size: 0.6rem !important;
+    line-height: 1.25 !important;
+    color: #64748b !important;
+    letter-spacing: -0.01em;
   }
 
   /* ── Packages Swiper Carousel ── */
