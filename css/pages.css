@@ -702,7 +702,7 @@ main:has(.package-hero) {
     height: auto !important;
     min-height: auto !important;
     max-height: none !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     margin-top: 0 !important;
     padding-top: calc(var(--nav-height) + 1rem) !important;
     padding-bottom: 2rem !important;
@@ -843,6 +843,8 @@ main:has(.package-hero) {
     border: 1px solid rgba(255, 255, 255, 0.4) !important;
     border-radius: var(--radius-md) !important;
     color: #1e293b !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
   }
 
   .hero__search-input::placeholder {
@@ -850,9 +852,23 @@ main:has(.package-hero) {
     font-size: 0.82rem !important;
   }
 
-  .hero__search-date {
+  /* Fix iOS date input rendering */
+  .hero__search-date,
+  .hero__search-input[type="date"] {
     max-width: 100% !important;
     width: 100% !important;
+    min-height: 40px !important;
+    color: #1e293b !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    position: relative !important;
+  }
+
+  /* Ensure iOS date text is visible */
+  .hero__search-input[type="date"]::-webkit-date-and-time-value {
+    text-align: left !important;
+    color: #1e293b !important;
   }
 
   .hero__search-btn {
