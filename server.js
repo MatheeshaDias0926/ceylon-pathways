@@ -732,7 +732,7 @@ app.post('/api/auth/login', authLimiter(), async (req, res) => {
 
     // Fallback: simple password check (for dev or if MongoDB is temporarily unreachable)
     const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'admin123';
-    if (password === defaultPassword || password === 'admin') {
+    if (cleanPass === defaultPassword || cleanPass === 'admin') {
       const token = generateToken({
         _id: 'local-admin',
         username: username || 'admin',
