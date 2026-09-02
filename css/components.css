@@ -984,3 +984,37 @@ select.form-input {
   .progress-step__label { display: none; }
   .progress-step__line { width: 24px; }
 }
+
+/* ── MOBILE TOUCH & INPUTS GLOBAL OPTIMIZATIONS ── */
+@media (max-width: 768px) {
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input, select, textarea, .form-input {
+    font-size: 16px !important;
+  }
+
+  /* Touch Targets */
+  .btn, .navbar__toggle, .accordion__header {
+    min-height: 44px;
+  }
+
+  /* Safe Area for Floating WhatsApp */
+  .whatsapp-fab {
+    bottom: calc(1rem + var(--safe-bottom));
+    right: 1rem;
+    width: 52px;
+    height: 52px;
+  }
+  .whatsapp-fab svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Mobile Navbar Actions */
+  .navbar__links {
+    padding-bottom: calc(5rem + var(--safe-bottom));
+  }
+
+  .navbar__actions {
+    padding-bottom: calc(var(--space-md) + var(--safe-bottom));
+  }
+}

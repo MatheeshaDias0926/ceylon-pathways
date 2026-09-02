@@ -76,6 +76,16 @@ function initNavbar() {
         document.body.style.overflow = '';
       });
     });
+
+    // Close when clicking outside menu
+    document.addEventListener('click', (e) => {
+      if (links.classList.contains('open') && !links.contains(e.target) && !toggle.contains(e.target)) {
+        toggle.classList.remove('open');
+        links.classList.remove('open');
+        if (actions) actions.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
   }
 }
 

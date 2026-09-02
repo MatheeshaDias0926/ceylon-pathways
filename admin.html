@@ -202,6 +202,174 @@
       border: 1px solid #e5e7eb;
       background: #eee;
     }
+
+    /* ── MOBILE ADMIN TOP BAR & DRAWER ── */
+    .admin-mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      height: 62px;
+      padding: 0 1rem;
+      background: #111827;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      border-bottom: 1px solid #1f2937;
+    }
+    .admin-mobile-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .admin-mobile-toggle {
+      background: transparent;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      color: #fff;
+      padding: 7px;
+      min-width: 44px;
+      min-height: 44px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .admin-mobile-logo {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .admin-mobile-logo span { color: var(--color-cta); }
+    .admin-mobile-active-tab {
+      font-size: 0.75rem;
+      background: #1f2937;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .admin-sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 1000;
+    }
+    .admin-sidebar-backdrop.active {
+      display: block;
+    }
+    .mobile-table-hint {
+      display: none;
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 6px;
+      text-align: right;
+    }
+
+    /* ── RESPONSIVE OVERRIDES (MOBILE & TABLET <= 768px) ── */
+    @media (max-width: 768px) {
+      .admin-mobile-header {
+        display: flex;
+      }
+      .admin-layout {
+        display: block;
+      }
+      .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 290px;
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+        overflow-y: auto;
+      }
+      .admin-sidebar.open {
+        transform: translateX(0);
+      }
+      .admin-content {
+        padding: 1.25rem 0.875rem 3rem 0.875rem;
+      }
+      .dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .dashboard-header h1 {
+        font-size: 1.4rem;
+      }
+      .dashboard-header .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .section-header-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+      }
+      .section-header-row .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .stat-card {
+        padding: 1.25rem 1rem;
+      }
+      .stat-card div[style*="font-size: 2.25rem"] {
+        font-size: 1.75rem !important;
+      }
+      .admin-modal {
+        padding: 0.5rem;
+      }
+      .admin-modal-card {
+        padding: 1.25rem 1rem;
+        border-radius: var(--radius-lg);
+        max-height: 92vh;
+        margin: auto;
+      }
+      .admin-modal-card .grid-2 {
+        grid-template-columns: 1fr !important;
+        gap: 0.875rem !important;
+      }
+      .admin-modal-card .form-input,
+      .admin-modal-card select,
+      .admin-modal-card textarea {
+        font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
+      }
+      .mobile-table-hint {
+        display: block;
+      }
+      .table-container {
+        border-radius: 8px;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #e2e8f0;
+      }
+      .admin-table {
+        min-width: 600px; /* Enables clean horizontal swipe for wide data */
+      }
+      .admin-table th, .admin-table td {
+        padding: 0.75rem 0.75rem;
+      }
+      .admin-table td .btn {
+        padding: 0.4rem 0.65rem;
+        min-height: 36px;
+      }
+      .login-card,
+      #admin-login-modal .card {
+        padding: 1.5rem 1.25rem !important;
+        margin: 1rem !important;
+      }
+      #admin-login-modal .form-input {
+        font-size: 16px !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -233,6 +401,22 @@
       </form>
     </div>
   </div>
+
+  <!-- Mobile Top Bar (visible on <= 768px) -->
+  <header class="admin-mobile-header">
+    <div class="admin-mobile-brand">
+      <button type="button" id="admin-mobile-toggle" class="admin-mobile-toggle" aria-label="Toggle navigation menu">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <span class="admin-mobile-logo">Ceylon<span>Admin</span></span>
+    </div>
+    <span id="admin-current-section-title" class="admin-mobile-active-tab">Dashboard</span>
+  </header>
+  <div class="admin-sidebar-backdrop" id="admin-sidebar-backdrop"></div>
 
   <div class="admin-layout">
     <!-- Sidebar Navigation -->
@@ -936,6 +1120,36 @@
         loginModal.classList.add('open');
       });
 
+      // Mobile Sidebar Drawer Elements
+      const mobileToggle = document.getElementById('admin-mobile-toggle');
+      const adminSidebar = document.querySelector('.admin-sidebar');
+      const sidebarBackdrop = document.getElementById('admin-sidebar-backdrop');
+      const currentTabLabel = document.getElementById('admin-current-section-title');
+
+      function closeMobileSidebar() {
+        if (adminSidebar) adminSidebar.classList.remove('open');
+        if (sidebarBackdrop) sidebarBackdrop.classList.remove('active');
+      }
+
+      function openMobileSidebar() {
+        if (adminSidebar) adminSidebar.classList.add('open');
+        if (sidebarBackdrop) sidebarBackdrop.classList.add('active');
+      }
+
+      if (mobileToggle) {
+        mobileToggle.addEventListener('click', () => {
+          if (adminSidebar && adminSidebar.classList.contains('open')) {
+            closeMobileSidebar();
+          } else {
+            openMobileSidebar();
+          }
+        });
+      }
+
+      if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+      }
+
       // Tabs
       document.querySelectorAll('.admin-nav-item').forEach(item => {
         item.addEventListener('click', () => {
@@ -943,14 +1157,25 @@
           item.classList.add('active');
           const tab = item.getAttribute('data-tab');
           document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-          document.getElementById(`tab-${tab}`).classList.add('active');
+          const targetPanel = document.getElementById(`tab-${tab}`);
+          if (targetPanel) targetPanel.classList.add('active');
+
+          // Update current mobile section title
+          if (currentTabLabel) {
+            const cleanTitle = item.textContent.replace(/\(.*?\)/g, '').trim();
+            currentTabLabel.textContent = cleanTitle;
+          }
+
+          // Auto close mobile drawer on tab selection
+          closeMobileSidebar();
         });
       });
 
       document.querySelectorAll('[data-nav]').forEach(btn => {
         btn.addEventListener('click', () => {
           const navTab = btn.getAttribute('data-nav');
-          document.querySelector(`.admin-nav-item[data-tab="${navTab}"]`).click();
+          const targetNavItem = document.querySelector(`.admin-nav-item[data-tab="${navTab}"]`);
+          if (targetNavItem) targetNavItem.click();
         });
       });
 

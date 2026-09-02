@@ -707,3 +707,144 @@ main:has(.page-header),
 main:has(.package-hero) {
   padding-top: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   100% MOBILE-OPTIMIZED RESPONSIVE ENHANCEMENTS (<= 768px)
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* ── Hero Section ── */
+  .hero {
+    min-height: auto;
+    padding: calc(var(--nav-height) + 2rem) 0 3rem;
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 8vw, 2.75rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .hero__subtitle {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .hero__search {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.75rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .hero__search-group {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 0 0 0.75rem 0;
+  }
+
+  .hero__search-btn {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+
+  /* ── Packages Swiper Carousel ── */
+  .packages-scroll {
+    gap: 1rem;
+    padding: 0.75rem 1rem 1.25rem 1rem;
+    margin: 0 -1rem;
+  }
+
+  .packages-scroll .card {
+    min-width: calc(85vw - 1rem);
+    max-width: 320px;
+  }
+
+  /* ── Customizer Wizard Step Nav ── */
+  .wizard {
+    padding-top: 1rem;
+  }
+
+  .wizard__step-title {
+    font-size: 1.5rem;
+  }
+
+  .wizard__nav {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .wizard__nav .btn {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+
+  #wizard-destinations-grid,
+  #wizard-vehicles-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+
+  .dest-select-card,
+  .vehicle-select-card {
+    min-height: 48px;
+  }
+
+  /* ── Package Detail Page ── */
+  .package-hero {
+    padding: calc(var(--nav-height) + 1.5rem) 0 2.5rem;
+  }
+
+  .package-hero__title {
+    font-size: clamp(1.75rem, 7vw, 2.5rem);
+    line-height: 1.2;
+  }
+
+  #pkg-vehicle-card {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  #pkg-vehicle-card img {
+    margin: 0 auto;
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+  }
+
+  .package-detail__sidebar-card {
+    padding: 1.25rem 1rem;
+  }
+
+  /* ── Interactive Leaflet Maps on Phone ── */
+  #destinations-map, #map, .leaflet-container {
+    height: 320px !important;
+    border-radius: var(--radius-lg);
+  }
+
+  /* ── Filter Bars & Chips (Momentum Touch Scroll) ── */
+  .filter-bar, .destination-filters {
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .filter-bar::-webkit-scrollbar,
+  .destination-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip, .filter-btn {
+    flex-shrink: 0;
+    min-height: 38px;
+    white-space: nowrap;
+  }
+}
