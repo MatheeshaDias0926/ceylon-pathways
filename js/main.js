@@ -23,7 +23,6 @@ function initApp() {
   initWhatsAppFAB();
   initCurrencyToggle();
   initLanguageToggle();
-  initLeadPopup();
   initScrollReveal();
   setActiveNavLink();
 }
