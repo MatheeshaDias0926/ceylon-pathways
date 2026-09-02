@@ -787,6 +787,108 @@ app.post('/api/auth/register', verifyToken, async (req, res) => {
   }
 });
 
+// Update admin credentials (username & password)
+app.put('/api/auth/profile', verifyToken, async (req, res) => {
+  try {
+    const { currentPassword, newUsername, newPassword } = req.body;
+
+    if (!currentPassword) {
+      return res.status(400).json({ error: 'Current password is required to make changes.' });
+    }
+
+    if (!newUsername && !newPassword) {
+      return res.status(400).json({ error: 'Please provide a new username or new password.' });
+    }
+
+    if (isDBConnected()) {
+      // Find current user in DB by ID or current username from token
+      let admin = null;
+      if (req.user.id && req.user.id !== 'local-admin') {
+        admin = await Admin.findById(req.user.id);
+      }
+      if (!admin && req.user.username) {
+        admin = await Admin.findOne({ username: req.user.username.toLowerCase() });
+      }
+      if (!admin) {
+        // Fallback for single admin account
+        admin = await Admin.findOne({ role: 'owner' });
+      }
+
+      if (!admin) {
+        return res.status(404).json({ error: 'Admin user not found.' });
+      }
+
+      // Verify current password
+      const isMatch = await admin.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(401).json({ error: 'Incorrect current password.' });
+      }
+
+      // If updating username, check uniqueness
+      if (newUsername && newUsername.trim().toLowerCase() !== admin.username) {
+        const cleanUser = newUsername.trim().toLowerCase();
+        const existing = await Admin.findOne({ username: cleanUser, _id: { $ne: admin._id } });
+        if (existing) {
+          return res.status(409).json({ error: 'This username is already taken. Please choose another.' });
+        }
+        admin.username = cleanUser;
+      }
+
+      // If updating password
+      if (newPassword) {
+        if (newPassword.length < 6) {
+          return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+        }
+        admin.passwordHash = newPassword; // Handled by pre-save hook
+      }
+
+      await admin.save();
+
+      // Issue fresh JWT token with updated credentials
+      const token = generateToken(admin);
+
+      return res.json({
+        success: true,
+        message: 'Credentials updated successfully!',
+        token,
+        user: {
+          username: admin.username,
+          role: admin.role,
+          name: admin.name
+        }
+      });
+    }
+
+    // Fallback mode (when MongoDB is not connected)
+    const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'admin123';
+    if (currentPassword !== defaultPassword) {
+      return res.status(401).json({ error: 'Incorrect current password.' });
+    }
+
+    const updatedUser = {
+      username: (newUsername && newUsername.trim().toLowerCase()) || req.user.username || 'admin',
+      role: 'owner',
+      name: 'Nimal Wickramasinghe (Owner)'
+    };
+
+    const token = generateToken({
+      _id: 'local-admin',
+      username: updatedUser.username,
+      role: updatedUser.role
+    });
+
+    return res.json({
+      success: true,
+      message: 'Credentials updated successfully (preview mode)!',
+      token,
+      user: updatedUser
+    });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ error: 'Failed to update credentials.' });
+  }
+});
+
 /* ═════════════════════════════════════════════════════════════
    STATIC ASSETS SERVING
    ═════════════════════════════════════════════════════════════ */

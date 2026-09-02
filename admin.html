@@ -14,12 +14,12 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="./css/variables.css?v=7.0">
-  <link rel="stylesheet" href="./css/reset.css?v=7.0">
-  <link rel="stylesheet" href="./css/typography.css?v=7.0">
-  <link rel="stylesheet" href="./css/layout.css?v=7.0">
-  <link rel="stylesheet" href="./css/components.css?v=7.0">
-  <link rel="stylesheet" href="./css/pages.css?v=7.0">
+  <link rel="stylesheet" href="./css/variables.css?v=8.0">
+  <link rel="stylesheet" href="./css/reset.css?v=8.0">
+  <link rel="stylesheet" href="./css/typography.css?v=8.0">
+  <link rel="stylesheet" href="./css/layout.css?v=8.0">
+  <link rel="stylesheet" href="./css/components.css?v=8.0">
+  <link rel="stylesheet" href="./css/pages.css?v=8.0">
 
   <style>
     .admin-layout {
@@ -532,8 +532,8 @@
           Traveler Reviews (<span id="testimonials-count">0</span>)
         </div>
         <div class="admin-nav-item" data-tab="users">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Staff & Permissions
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Account Security
         </div>
       </nav>
 
@@ -785,44 +785,85 @@
         </div>
       </div>
 
-      <!-- PANEL 7: Users & Roles -->
+      <!-- PANEL 7: Users & Security Settings -->
       <div class="tab-panel" id="tab-users">
         <div class="dashboard-header">
           <div>
-            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Staff Accounts & Roles</h1>
-            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Manage administrator permissions and operational staff access.</p>
+            <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Admin Account & Security</h1>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Update your administrator login username and change your access password.</p>
           </div>
-          <button class="btn btn--primary btn--sm" onclick="alert('Staff invite sent to email!');" style="padding: 0.6rem 1.25rem;">+ Invite Staff Account</button>
         </div>
 
-        <div class="table-container">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Permissions</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Nimal Wickramasinghe</strong></td>
-                <td>owner@ceylonpathways.com</td>
-                <td><span class="status-badge status-booked">Owner</span></td>
-                <td>Full CRUD, Financials, User Mgmt</td>
-                <td><span style="color: #10b981;">Active</span></td>
-              </tr>
-              <tr>
-                <td><strong>Dinesh Perera</strong></td>
-                <td>reservations@ceylonpathways.com</td>
-                <td><span class="status-badge status-new">Staff</span></td>
-                <td>Inquiries Inbox & WhatsApp Leads</td>
-                <td><span style="color: #10b981;">Active</span></td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="grid grid-2" style="gap: var(--space-xl); align-items: start; max-width: 960px;">
+          <!-- Current Account Status Card -->
+          <div class="card p-xl" style="padding: var(--space-xl); background: #fff;">
+            <div class="flex items-center gap-md mb-lg">
+              <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(15, 110, 86, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-primary);">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <h3 style="font-size: var(--text-lg); margin-bottom: 2px;" id="profile-display-name">Administrator</h3>
+                <span class="status-badge status-booked">Active Admin Role</span>
+              </div>
+            </div>
+
+            <div style="border-top: var(--border-light); padding-top: var(--space-md);">
+              <div class="flex justify-between items-center py-xs" style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+                <span style="font-size: var(--text-xs); color: #64748b; font-weight: 600; text-transform: uppercase;">Current Username</span>
+                <strong style="font-size: var(--text-sm); color: #0f172a;" id="profile-current-username">admin</strong>
+              </div>
+              <div class="flex justify-between items-center py-xs" style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+                <span style="font-size: var(--text-xs); color: #64748b; font-weight: 600; text-transform: uppercase;">Access Level</span>
+                <span style="font-size: var(--text-sm); color: var(--color-primary); font-weight: 600;">Full Administrator</span>
+              </div>
+              <div class="flex justify-between items-center py-xs" style="padding: 8px 0;">
+                <span style="font-size: var(--text-xs); color: #64748b; font-weight: 600; text-transform: uppercase;">Portal Protection</span>
+                <span style="font-size: var(--text-sm); color: #10b981; font-weight: 600;">JWT Authentication</span>
+              </div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-top: var(--space-lg); font-size: var(--text-xs); color: #64748b; line-height: 1.45;">
+              <strong style="color: #334155; display: block; margin-bottom: 4px;">Security Guidelines:</strong>
+              • Passwords must be at least 6 characters long.<br>
+              • Updating your credentials will automatically renew your active session without logging you out.
+            </div>
+          </div>
+
+          <!-- Credentials Change Form -->
+          <div class="card p-xl" style="padding: var(--space-xl); background: #fff;">
+            <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-sm);">Update Credentials</h3>
+            <p style="font-size: var(--text-xs); color: #64748b; margin-bottom: var(--space-lg);">Enter your current password to authorize changes to your username or password.</p>
+
+            <div id="profile-msg-box" style="display: none; padding: 10px 14px; border-radius: 6px; font-size: var(--text-xs); margin-bottom: var(--space-md); text-align: center;"></div>
+
+            <form id="form-update-profile">
+              <div class="form-group mb-md">
+                <label class="form-label" for="profile-new-username">New Username</label>
+                <input type="text" id="profile-new-username" class="form-input" placeholder="Leave unchanged or enter new username" autocomplete="username">
+              </div>
+
+              <div class="form-group mb-md">
+                <label class="form-label" for="profile-new-password">New Password</label>
+                <input type="password" id="profile-new-password" class="form-input" placeholder="Enter new password (min. 6 chars)" autocomplete="new-password">
+              </div>
+
+              <div class="form-group mb-md">
+                <label class="form-label" for="profile-confirm-password">Confirm New Password</label>
+                <input type="password" id="profile-confirm-password" class="form-input" placeholder="Confirm new password" autocomplete="new-password">
+              </div>
+
+              <div style="border-top: var(--border-light); margin: var(--space-lg) 0 var(--space-md); padding-top: var(--space-md);">
+                <div class="form-group mb-md">
+                  <label class="form-label" for="profile-current-password" style="color: var(--color-cta); font-weight: 700;">Current Password *</label>
+                  <input type="password" id="profile-current-password" class="form-input" placeholder="Enter current password to save" autocomplete="current-password" required>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn--primary" id="btn-save-profile" style="width: 100%; justify-content: center; min-height: 44px;">
+                Save Changes
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -1137,7 +1178,8 @@
       getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial,
       getEnquiries, updateEnquiryStatus, deleteEnquiry,
       uploadImage, getImageUrl,
-      loginAdmin, logoutAdmin, isAuthenticated, getCurrentUser
+      loginAdmin, logoutAdmin, isAuthenticated, getCurrentUser,
+      updateAdminCredentials
     } from './js/api.js';
 
     let currentPackages = [];
@@ -1163,6 +1205,7 @@
         if (user) {
           roleLabel.textContent = user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
         }
+        syncAdminProfileUI();
       }
 
       // JWT Login
@@ -1181,6 +1224,7 @@
           const result = await loginAdmin(username, pass);
           loginModal.classList.remove('open');
           roleLabel.textContent = result.user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
+          syncAdminProfileUI();
           loadAllData();
         } catch (err) {
           errBox.textContent = err.message || 'Invalid username or password. Please try again.';
@@ -2147,6 +2191,100 @@
         await loadAllData();
       }
     };
+
+    /* ── ADMIN PROFILE & CREDENTIALS MANAGEMENT ── */
+    function syncAdminProfileUI() {
+      const user = getCurrentUser();
+      const currentUsernameEl = document.getElementById('profile-current-username');
+      const displayNameEl = document.getElementById('profile-display-name');
+      if (user) {
+        if (currentUsernameEl) currentUsernameEl.textContent = user.username || 'admin';
+        if (displayNameEl) displayNameEl.textContent = user.name || user.username || 'Administrator';
+      }
+    }
+
+    const formUpdateProfile = document.getElementById('form-update-profile');
+    if (formUpdateProfile) {
+      syncAdminProfileUI();
+
+      formUpdateProfile.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msgBox = document.getElementById('profile-msg-box');
+        const submitBtn = document.getElementById('btn-save-profile');
+        const currentPass = document.getElementById('profile-current-password').value;
+        const newUsername = document.getElementById('profile-new-username').value.trim();
+        const newPassword = document.getElementById('profile-new-password').value;
+        const confirmPassword = document.getElementById('profile-confirm-password').value;
+
+        msgBox.style.display = 'none';
+
+        if (!currentPass) {
+          msgBox.textContent = 'Please enter your current password to confirm changes.';
+          msgBox.style.background = '#fee2e2';
+          msgBox.style.color = '#b91c1c';
+          msgBox.style.border = '1px solid #f87171';
+          msgBox.style.display = 'block';
+          return;
+        }
+
+        if (!newUsername && !newPassword) {
+          msgBox.textContent = 'Please specify a new username or a new password.';
+          msgBox.style.background = '#fef3c7';
+          msgBox.style.color = '#92400e';
+          msgBox.style.border = '1px solid #fcd34d';
+          msgBox.style.display = 'block';
+          return;
+        }
+
+        if (newPassword) {
+          if (newPassword.length < 6) {
+            msgBox.textContent = 'New password must be at least 6 characters long.';
+            msgBox.style.background = '#fee2e2';
+            msgBox.style.color = '#b91c1c';
+            msgBox.style.border = '1px solid #f87171';
+            msgBox.style.display = 'block';
+            return;
+          }
+          if (newPassword !== confirmPassword) {
+            msgBox.textContent = 'New passwords do not match. Please retype.';
+            msgBox.style.background = '#fee2e2';
+            msgBox.style.color = '#b91c1c';
+            msgBox.style.border = '1px solid #f87171';
+            msgBox.style.display = 'block';
+            return;
+          }
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving Changes...';
+
+        try {
+          const res = await updateAdminCredentials(currentPass, newUsername, newPassword);
+          msgBox.textContent = res.message || 'Credentials updated successfully!';
+          msgBox.style.background = '#dcfce7';
+          msgBox.style.color = '#15803d';
+          msgBox.style.border = '1px solid #86efac';
+          msgBox.style.display = 'block';
+
+          // Reset inputs
+          document.getElementById('profile-current-password').value = '';
+          document.getElementById('profile-new-username').value = '';
+          document.getElementById('profile-new-password').value = '';
+          document.getElementById('profile-confirm-password').value = '';
+
+          syncAdminProfileUI();
+        } catch (err) {
+          msgBox.textContent = err.message || 'Failed to update credentials. Please check your current password.';
+          msgBox.style.background = '#fee2e2';
+          msgBox.style.color = '#b91c1c';
+          msgBox.style.border = '1px solid #f87171';
+          msgBox.style.display = 'block';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Save Changes';
+        }
+      });
+    }
   </script>
 </body>
 </html>
