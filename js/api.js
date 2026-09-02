@@ -346,22 +346,6 @@ export async function loginAdmin(username, password) {
   return data;
 }
 
-export async function updateAdminCredentials(currentPassword, newUsername, newPassword) {
-  const data = await fetchAuthAPI('/auth/profile', {
-    method: 'PUT',
-    body: JSON.stringify({ currentPassword, newUsername, newPassword })
-  });
-
-  if (data.token) {
-    setAuthToken(data.token);
-  }
-  if (data.user) {
-    sessionStorage.setItem('ceylon-admin-user', JSON.stringify(data.user));
-  }
-
-  return data;
-}
-
 export function logoutAdmin() {
   clearAuthToken();
   sessionStorage.removeItem('ceylon-admin-user');
