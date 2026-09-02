@@ -22,18 +22,50 @@ if (typeof window !== 'undefined') {
   window.getImageUrl = getImageUrl;
 }
 
-/* ── Auth Token Management ── */
+/* ── Auth Token Management (with Safari Private Mode fallback) ── */
+let memoryToken = '';
+let memoryUser = null;
+
 function getAuthToken() {
-  return sessionStorage.getItem('ceylon-admin-token') || '';
+  try {
+    return sessionStorage.getItem('ceylon-admin-token') || memoryToken || '';
+  } catch (e) {
+    return memoryToken || '';
+  }
 }
 
 export function setAuthToken(token) {
-  sessionStorage.setItem('ceylon-admin-token', token);
+  memoryToken = token || '';
+  try {
+    sessionStorage.setItem('ceylon-admin-token', token);
+  } catch (e) {
+    // Safari Private Mode storage fallback
+  }
 }
 
 export function clearAuthToken() {
-  sessionStorage.removeItem('ceylon-admin-token');
-  sessionStorage.removeItem('ceylon-admin-user');
+  memoryToken = '';
+  memoryUser = null;
+  try {
+    sessionStorage.removeItem('ceylon-admin-token');
+    sessionStorage.removeItem('ceylon-admin-user');
+  } catch (e) {}
+}
+
+export function getCurrentUser() {
+  try {
+    const raw = sessionStorage.getItem('ceylon-admin-user');
+    return raw ? JSON.parse(raw) : memoryUser;
+  } catch (e) {
+    return memoryUser;
+  }
+}
+
+export function setCurrentUser(user) {
+  memoryUser = user;
+  try {
+    sessionStorage.setItem('ceylon-admin-user', JSON.stringify(user));
+  } catch (e) {}
 }
 
 function getAuthHeaders() {
@@ -340,7 +372,7 @@ export async function loginAdmin(username, password) {
   // Store JWT token and user info
   if (data.token) {
     setAuthToken(data.token);
-    sessionStorage.setItem('ceylon-admin-user', JSON.stringify(data.user));
+    setCurrentUser(data.user);
   }
 
   return data;
@@ -348,19 +380,10 @@ export async function loginAdmin(username, password) {
 
 export function logoutAdmin() {
   clearAuthToken();
-  sessionStorage.removeItem('ceylon-admin-user');
 }
 
 export function isAuthenticated() {
   return !!getAuthToken();
-}
-
-export function getCurrentUser() {
-  try {
-    return JSON.parse(sessionStorage.getItem('ceylon-admin-user') || 'null');
-  } catch {
-    return null;
-  }
 }
 
 /* ── IMAGE UPLOAD HELPER (Cloudinary via server) ── */

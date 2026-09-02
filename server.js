@@ -699,6 +699,8 @@ app.post('/api/auth/login', authLimiter(), async (req, res) => {
       await connectDB();
     }
 
+    const cleanPass = password.trim();
+
     if (isDBConnected()) {
       const u = username.toLowerCase().trim();
       const admin = await Admin.findOne({
@@ -711,7 +713,7 @@ app.post('/api/auth/login', authLimiter(), async (req, res) => {
         return res.status(401).json({ error: 'Invalid username or passcode.' });
       }
 
-      const isMatch = await admin.comparePassword(password);
+      const isMatch = await admin.comparePassword(cleanPass);
       if (!isMatch) {
         return res.status(401).json({ error: 'Invalid credentials.' });
       }

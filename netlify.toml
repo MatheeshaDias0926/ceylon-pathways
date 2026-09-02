@@ -12,6 +12,17 @@
   to = "/.netlify/functions/api/api/:splat"
   status = 200
 
+# Prevent stale caching for HTML pages (especially on iOS Safari)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Cache static assets (no stale caching for live CSS & JS updates)
 [[headers]]
   for = "/css/*"
