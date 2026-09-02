@@ -12,16 +12,16 @@
   to = "/.netlify/functions/api/api/:splat"
   status = 200
 
-# Cache static assets
+# Cache static assets (no stale caching for live CSS & JS updates)
 [[headers]]
   for = "/css/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/js/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/images/*"
