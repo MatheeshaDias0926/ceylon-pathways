@@ -201,35 +201,7 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
-    .admin-modal.open {
-      display: flex;
-    }
-    /* Dedicated Fullscreen Opaque Cover for Login Gate */
-    body.login-modal-active {
-      overflow: hidden !important;
-      position: fixed !important;
-      width: 100% !important;
-      height: 100% !important;
-    }
-    body.login-modal-active .admin-layout,
-    body.login-modal-active .admin-mobile-header,
-    body.login-modal-active .admin-sidebar-backdrop {
-      display: none !important; /* Completely hide underlying dashboard structure until authorized */
-    }
-    #admin-login-modal {
-      background: #0f172a !important; /* Fully opaque dark slate */
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      z-index: 99999 !important;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch;
-    }
-    #admin-login-modal .card {
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      margin: auto;
-    }
+    /* Dedicated Modal Card */
     .admin-modal-card {
       background: #fff;
       border-radius: var(--radius-xl);
@@ -468,46 +440,10 @@
         padding: 0.4rem 0.65rem;
         min-height: 36px;
       }
-      .login-card,
-      #admin-login-modal .card {
-        padding: 1.5rem 1.25rem !important;
-        margin: 1rem !important;
-      }
-      #admin-login-modal .form-input {
-        font-size: 16px !important;
-      }
     }
   </style>
 </head>
-<body class="login-modal-active">
-
-  <!-- Authentication Overlay -->
-  <div class="admin-modal open" id="admin-login-modal">
-    <div class="card p-2xl" style="padding: var(--space-2xl); width: 100%; max-width: 420px; background: #fff;">
-      <div style="text-align: center; margin-bottom: var(--space-xl);">
-        <div class="navbar__logo" style="justify-content: center; font-size: var(--text-2xl);">
-          Ceylon<span>Admin</span>
-        </div>
-        <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 4px;">Operations & Tour Management Portal</p>
-      </div>
-
-      <form id="login-form">
-        <div id="login-error-msg" style="display: none; background: #fee2e2; color: #dc2626; padding: 10px 14px; border-radius: var(--radius-md); font-size: var(--text-xs); margin-bottom: var(--space-md); text-align: center; border: 1px solid #fca5a5;"></div>
-
-        <div class="form-group">
-          <label class="form-label" for="login-username">Username</label>
-          <input type="text" id="login-username" class="form-input" placeholder="e.g. admin" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="login-password">Password</label>
-          <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required>
-        </div>
-        <button type="submit" class="btn btn--primary" id="btn-login-submit" style="width: 100%; margin-top: var(--space-sm);">
-          Sign In to Portal
-        </button>
-      </form>
-    </div>
-  </div>
+<body>
 
   <!-- Mobile Top Bar (visible on <= 768px) -->
   <header class="admin-mobile-header">
@@ -1181,71 +1117,32 @@
     let pickerMarker = null;
 
     async function initAdmin() {
-      // Auth
-      const loginModal = document.getElementById('admin-login-modal');
-      const loginForm = document.getElementById('login-form');
+      // Auth Guard — Redirect to dedicated login page if not authenticated
+      if (!isAuthenticated()) {
+        window.location.replace('./login.html');
+        return;
+      }
+
       const logoutBtn = document.getElementById('logout-btn');
       const roleLabel = document.getElementById('logged-user-role');
 
-      // Check existing JWT session
-      if (isAuthenticated()) {
-        loginModal.classList.remove('open');
-        document.body.classList.remove('login-modal-active');
-        const user = getCurrentUser();
-        if (user) {
-          roleLabel.textContent = user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
-        }
-      } else {
-        loginModal.classList.add('open');
-        document.body.classList.add('login-modal-active');
+      const user = getCurrentUser();
+      if (user && roleLabel) {
+        roleLabel.textContent = user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
       }
 
-      // JWT Login
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const errBox = document.getElementById('login-error-msg');
-        const submitBtn = document.getElementById('btn-login-submit');
-        const username = document.getElementById('login-username').value.trim();
-        const pass = document.getElementById('login-password').value.trim();
-
-        errBox.style.display = 'none';
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Verifying...';
-
-        try {
-          const result = await loginAdmin(username, pass);
-          loginModal.classList.remove('open');
-          document.body.classList.remove('login-modal-active');
-          roleLabel.textContent = result.user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
-          
-          // Safely load dashboard data without crashing login success
-          try {
-            await loadAllData();
-          } catch (dataErr) {
-            console.warn('Dashboard data fetch warning:', dataErr);
-          }
-        } catch (err) {
-          errBox.textContent = err.message || 'Invalid username or password. Please try again.';
-          errBox.style.display = 'block';
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign In to Portal';
-        }
-      });
-
-      // Logout — clears JWT
-      logoutBtn.addEventListener('click', () => {
-        logoutAdmin();
-        location.reload();
-      });
+      // Logout — clears JWT and redirects to login page
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+          logoutAdmin();
+          window.location.replace('./login.html');
+        });
+      }
 
       // Auto-redirect to login when JWT expires
       document.addEventListener('ceylon-auth-expired', () => {
-        if (!loginModal.classList.contains('open')) {
-          alert('Session expired. Please log in again.');
-          loginModal.classList.add('open');
-          document.body.classList.add('login-modal-active');
-        }
+        alert('Session expired. Please log in again.');
+        window.location.replace('./login.html');
       });
 
       // Mobile Sidebar Drawer Elements
