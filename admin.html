@@ -188,16 +188,47 @@
       display: none;
       position: fixed;
       inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh; /* Mobile dynamic viewport */
       background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       z-index: 10000;
       align-items: center;
       justify-content: center;
       padding: var(--space-md);
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .admin-modal.open {
       display: flex;
+    }
+    /* Dedicated Fullscreen Opaque Cover for Login Gate */
+    body.login-modal-active {
+      overflow: hidden !important;
+      position: fixed !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    body.login-modal-active .admin-layout,
+    body.login-modal-active .admin-mobile-header,
+    body.login-modal-active .admin-sidebar-backdrop {
+      display: none !important; /* Completely hide underlying dashboard structure until authorized */
+    }
+    #admin-login-modal {
+      background: #0f172a !important; /* Fully opaque dark slate */
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      z-index: 99999 !important;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    #admin-login-modal .card {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin: auto;
     }
     .admin-modal-card {
       background: #fff;
@@ -448,7 +479,7 @@
     }
   </style>
 </head>
-<body>
+<body class="login-modal-active">
 
   <!-- Authentication Overlay -->
   <div class="admin-modal open" id="admin-login-modal">
@@ -1159,10 +1190,14 @@
       // Check existing JWT session
       if (isAuthenticated()) {
         loginModal.classList.remove('open');
+        document.body.classList.remove('login-modal-active');
         const user = getCurrentUser();
         if (user) {
           roleLabel.textContent = user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
         }
+      } else {
+        loginModal.classList.add('open');
+        document.body.classList.add('login-modal-active');
       }
 
       // JWT Login
@@ -1180,6 +1215,7 @@
         try {
           const result = await loginAdmin(username, pass);
           loginModal.classList.remove('open');
+          document.body.classList.remove('login-modal-active');
           roleLabel.textContent = result.user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
           
           // Safely load dashboard data without crashing login success
@@ -1208,6 +1244,7 @@
         if (!loginModal.classList.contains('open')) {
           alert('Session expired. Please log in again.');
           loginModal.classList.add('open');
+          document.body.classList.add('login-modal-active');
         }
       });
 
