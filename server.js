@@ -399,18 +399,25 @@ app.delete('/api/destinations/:id', verifyToken, async (req, res) => {
    ═════════════════════════════════════════════════════════════ */
 app.get('/api/enquiries', async (req, res) => {
   try {
+    if (!isDBConnected() && process.env.MONGODB_URI) {
+      await connectDB();
+    }
     if (isDBConnected()) {
       const enquiries = await Enquiry.find().sort({ timestamp: -1 }).lean();
       return res.json(enquiries);
     }
     res.json(readJSON('enquiries.json', []));
   } catch (err) {
+    console.error('GET /api/enquiries error:', err);
     res.json(readJSON('enquiries.json', []));
   }
 });
 
 app.post('/api/enquiries', async (req, res) => {
   try {
+    if (!isDBConnected() && process.env.MONGODB_URI) {
+      await connectDB();
+    }
     const b = req.body || {};
     const newEnq = {
       id: `ENQ-${Math.floor(1000 + Math.random() * 9000)}`,

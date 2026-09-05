@@ -1,17 +1,12 @@
 import app from '../server.js';
 import { connectDB } from '../db/connection.js';
 
-let isConnected = false;
-
 export default async function handler(req, res) {
-  // Connect to MongoDB Atlas (reuses connection across invocations)
-  if (!isConnected) {
-    try {
-      await connectDB();
-      isConnected = true;
-    } catch (err) {
-      console.error('MongoDB connection error in Vercel function:', err);
-    }
+  // Ensure connection to MongoDB Atlas
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('MongoDB connection error in Vercel function:', err);
   }
 
   // Handle URL path resolution on Vercel
