@@ -201,6 +201,9 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
+    .admin-modal.open {
+      display: flex !important;
+    }
     /* Dedicated Modal Card */
     .admin-modal-card {
       background: #fff;
@@ -212,6 +215,18 @@
       overflow-y: auto;
       box-shadow: var(--shadow-xl);
       border: var(--border-light);
+      position: relative;
+      animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalSlideUp {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
     .upload-box {
       border: 2px dashed #d1d5db;
@@ -1331,53 +1346,58 @@
     /* ── INTERACTIVE MAP LOCATION PICKER ── */
     function initOrUpdateLocationPicker(lat = 7.8731, lng = 80.7718) {
       setTimeout(() => {
-        const mapContainer = document.getElementById('dest-picker-map');
-        if (!mapContainer) return;
+        try {
+          if (typeof L === 'undefined') return;
+          const mapContainer = document.getElementById('dest-picker-map');
+          if (!mapContainer) return;
 
-        if (!pickerMap) {
-          pickerMap = L.map('dest-picker-map').setView([lat, lng], 8);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; OpenStreetMap'
-          }).addTo(pickerMap);
+          if (!pickerMap) {
+            pickerMap = L.map('dest-picker-map').setView([lat, lng], 8);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 18,
+              attribution: '&copy; OpenStreetMap'
+            }).addTo(pickerMap);
 
-          pickerMarker = L.marker([lat, lng], { draggable: true }).addTo(pickerMap);
+            pickerMarker = L.marker([lat, lng], { draggable: true }).addTo(pickerMap);
 
-          pickerMarker.on('dragend', (e) => {
-            const pos = e.target.getLatLng();
-            updateCoordsFields(pos.lat, pos.lng);
-          });
+            pickerMarker.on('dragend', (e) => {
+              const pos = e.target.getLatLng();
+              updateCoordsFields(pos.lat, pos.lng);
+            });
 
-          pickerMap.on('click', (e) => {
-            pickerMarker.setLatLng(e.latlng);
-            updateCoordsFields(e.latlng.lat, e.latlng.lng);
-          });
+            pickerMap.on('click', (e) => {
+              pickerMarker.setLatLng(e.latlng);
+              updateCoordsFields(e.latlng.lat, e.latlng.lng);
+            });
 
-          // Sync if user types in text inputs
-          document.getElementById('dest-lat').addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (!isNaN(val)) {
-              const cur = pickerMarker.getLatLng();
-              pickerMarker.setLatLng([val, cur.lng]);
-              pickerMap.panTo([val, cur.lng]);
-            }
-          });
-          document.getElementById('dest-lng').addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (!isNaN(val)) {
-              const cur = pickerMarker.getLatLng();
-              pickerMarker.setLatLng([cur.lat, val]);
-              pickerMap.panTo([cur.lat, val]);
-            }
-          });
+            // Sync if user types in text inputs
+            document.getElementById('dest-lat').addEventListener('input', (e) => {
+              const val = parseFloat(e.target.value);
+              if (!isNaN(val) && pickerMarker && pickerMap) {
+                const cur = pickerMarker.getLatLng();
+                pickerMarker.setLatLng([val, cur.lng]);
+                pickerMap.panTo([val, cur.lng]);
+              }
+            });
+            document.getElementById('dest-lng').addEventListener('input', (e) => {
+              const val = parseFloat(e.target.value);
+              if (!isNaN(val) && pickerMarker && pickerMap) {
+                const cur = pickerMarker.getLatLng();
+                pickerMarker.setLatLng([cur.lat, val]);
+                pickerMap.panTo([cur.lat, val]);
+              }
+            });
 
-        } else {
-          pickerMap.invalidateSize();
-          pickerMap.setView([lat, lng], 8);
-          pickerMarker.setLatLng([lat, lng]);
+          } else {
+            pickerMap.invalidateSize();
+            pickerMap.setView([lat, lng], 8);
+            if (pickerMarker) pickerMarker.setLatLng([lat, lng]);
+          }
+
+          updateCoordsFields(lat, lng);
+        } catch (mapErr) {
+          console.warn('Map picker initialization warning:', mapErr);
         }
-
-        updateCoordsFields(lat, lng);
       }, 200);
     }
 
@@ -1424,16 +1444,18 @@
       if (testCountEl) testCountEl.textContent = currentTestimonials.length;
 
       // Recent leads table
-      document.getElementById('dashboard-recent-leads').innerHTML = currentEnquiries.slice(0, 5).map(e => `
+      document.getElementById('dashboard-recent-leads').innerHTML = currentEnquiries.slice(0, 5).map(e => {
+        const idVal = e.id || e._id;
+        return `
         <tr>
-          <td>${new Date(e.timestamp).toLocaleDateString()}</td>
-          <td><strong>${e.name}</strong></td>
-          <td>${e.email}</td>
+          <td>${e.timestamp ? new Date(e.timestamp).toLocaleDateString() : 'Recent'}</td>
+          <td><strong>${e.name || 'Anonymous'}</strong></td>
+          <td>${e.email || 'N/A'}</td>
           <td>${e.packageTitle || `${e.tripDays || 7}-Day Custom Tour`}</td>
           <td><span class="status-badge status-${e.status || 'new'}">${e.status || 'new'}</span></td>
-          <td><button class="btn btn--outline btn--sm" onclick="window.inspectEnquiry('${e.id}')">View</button></td>
+          <td><button class="btn btn--outline btn--sm" onclick="window.inspectEnquiry('${idVal}')">View</button></td>
         </tr>
-      `).join('');
+      `;}).join('');
 
       // Departures calendar
       const bookedList = currentEnquiries.filter(e => e.status === 'booked');
@@ -1460,6 +1482,7 @@
           const departureDate = b.date ? new Date(b.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date Flexible';
           const vehicleInfo = b.vehicle || (b.packageTitle ? 'Private A/C Transport' : 'Toyota Sedan');
           const guestCount = b.guests || b.adults || 2;
+          const bIdVal = b.id || b._id;
           
           return `
             <div class="card p-lg" style="padding: var(--space-lg); background: #fff; border-left: 4px solid #10b981; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between;">
@@ -1481,8 +1504,8 @@
                 </div>
               </div>
               <div class="flex justify-between items-center pt-xs" style="border-top: 1px solid #f3f4f6;">
-                <span style="font-size: 11px; color: #9ca3af;">ID: #${b.id}</span>
-                <button class="btn btn--outline btn--sm" style="padding: 4px 10px; font-size: 11px;" onclick="window.inspectEnquiry('${b.id}')">
+                <span style="font-size: 11px; color: #9ca3af;">ID: #${bIdVal}</span>
+                <button class="btn btn--outline btn--sm" style="padding: 4px 10px; font-size: 11px;" onclick="window.inspectEnquiry('${bIdVal}')">
                   Inspect Booking &rarr;
                 </button>
               </div>
@@ -1494,22 +1517,24 @@
 
     /* ── INBOX ── */
     function renderInbox() {
-      document.getElementById('inbox-table-body').innerHTML = currentEnquiries.map(e => `
+      document.getElementById('inbox-table-body').innerHTML = currentEnquiries.map(e => {
+        const idVal = e.id || e._id;
+        return `
         <tr>
           <td>
-            <strong>#${e.id}</strong><br>
-            <small style="color: #6b7280;">${new Date(e.timestamp).toLocaleDateString()}</small>
+            <strong>#${e.id || String(e._id || '').slice(-6)}</strong><br>
+            <small style="color: #6b7280;">${e.timestamp ? new Date(e.timestamp).toLocaleDateString() : 'N/A'}</small>
           </td>
           <td>
-            <strong>${e.name}</strong><br>
-            <small>${e.email} ${e.phone ? `&bull; ${e.phone}` : ''}</small>
+            <strong>${e.name || 'Anonymous'}</strong><br>
+            <small>${e.email || 'N/A'} ${e.phone ? `&bull; ${e.phone}` : ''}</small>
           </td>
           <td>
             ${e.packageTitle || `${e.tripDays || 7}-Day Custom (${(e.destinations || []).length} stops)`}
           </td>
-          <td>${e.date || 'Flexible'} &bull; ${e.guests || e.adults || 2} Pax</td>
+          <td>${e.date || e.travelDates || 'Flexible'} &bull; ${e.guests || e.adults || e.travelers || 2} Pax</td>
           <td>
-            <select onchange="window.handleStatusChange('${e.id}', this.value)" style="font-size: 12px; padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-weight: 600;">
+            <select onchange="window.handleStatusChange('${idVal}', this.value)" style="font-size: 12px; padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-weight: 600;">
               <option value="new" ${e.status === 'new' ? 'selected' : ''}>New</option>
               <option value="contacted" ${e.status === 'contacted' ? 'selected' : ''}>Contacted</option>
               <option value="booked" ${e.status === 'booked' ? 'selected' : ''}>Booked</option>
@@ -1518,12 +1543,12 @@
           </td>
           <td>
             <div class="flex gap-xs">
-              <button class="btn btn--outline btn--sm" onclick="window.inspectEnquiry('${e.id}')">Inspect</button>
-              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.handleDeleteEnquiry('${e.id}')">Delete</button>
+              <button class="btn btn--outline btn--sm" onclick="window.inspectEnquiry('${idVal}')">Inspect</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.handleDeleteEnquiry('${idVal}')">Delete</button>
             </div>
           </td>
         </tr>
-      `).join('');
+      `;}).join('');
     }
 
     window.handleStatusChange = async (id, status) => {
@@ -1539,30 +1564,34 @@
     };
 
     window.inspectEnquiry = (id) => {
-      const e = currentEnquiries.find(x => x.id === id);
-      if (!e) return;
+      const targetId = String(id || '');
+      const e = currentEnquiries.find(x => String(x.id || '') === targetId || String(x._id || '') === targetId);
+      if (!e) {
+        console.warn('Enquiry not found for id:', id);
+        return;
+      }
 
       document.getElementById('enquiry-inspect-body').innerHTML = `
         <div style="background: var(--color-bg); padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
-          <h3 style="margin-bottom: 4px;">${e.name}</h3>
-          <p style="margin: 0; color: #4b5563;">Email: <strong>${e.email}</strong> | Phone: <strong>${e.phone || 'N/A'}</strong></p>
+          <h3 style="margin-bottom: 4px;">${e.name || 'Anonymous Guest'}</h3>
+          <p style="margin: 0; color: #4b5563;">Email: <strong>${e.email || 'N/A'}</strong> | Phone: <strong>${e.phone || 'N/A'}</strong></p>
         </div>
         <div class="grid grid-2" style="gap: var(--space-md); margin-bottom: var(--space-md);">
           <div>
             <strong>Tour Details:</strong>
             <p style="color: #4b5563; margin-top: 4px;">
-              ${e.packageTitle ? `Package: ${e.packageTitle}` : `Custom Tour (${e.tripDays} Days)`}<br>
-              Travel Date: ${e.date || 'Flexible'}<br>
-              Group Size: ${e.guests || e.adults || 2} Travelers
+              ${e.packageTitle ? `Package: ${e.packageTitle}` : `Custom Tour (${e.tripDays || 7} Days)`}<br>
+              Travel Date: ${e.date || e.travelDates || 'Flexible'}<br>
+              Group Size: ${e.guests || e.adults || e.travelers || 2} Travelers
             </p>
           </div>
           <div>
             <strong>Preferences & Selections:</strong>
             <p style="color: #4b5563; margin-top: 4px;">
-              ${e.destinations ? `Destinations: ${e.destinations.join(', ')}<br>` : ''}
+              ${e.destinations && e.destinations.length ? `Destinations: ${Array.isArray(e.destinations) ? e.destinations.join(', ') : e.destinations}<br>` : ''}
               ${e.vehicle ? `Vehicle: ${e.vehicle}<br>` : ''}
               ${e.hotelTier ? `Hotel Category: ${e.hotelTier}<br>` : ''}
-              Status: <span class="status-badge status-${e.status}">${e.status}</span>
+              Status: <span class="status-badge status-${e.status || 'new'}">${e.status || 'new'}</span>
             </p>
           </div>
         </div>
@@ -1571,8 +1600,8 @@
           <p style="background: #fff; padding: var(--space-sm); border: var(--border-light); border-radius: 4px; margin-top: 4px;">${e.notes || e.message || 'No additional notes provided.'}</p>
         </div>
         <div class="flex justify-between items-center">
-          <a href="mailto:${e.email}?subject=Your Sri Lanka Tour with Ceylon Pathways" class="btn btn--primary btn--sm">Reply via Email</a>
-          ${e.phone ? `<a href="https://wa.me/${e.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn btn--cta btn--sm">Chat on WhatsApp</a>` : ''}
+          <a href="mailto:${e.email || ''}?subject=Your Sri Lanka Tour with Ceylon Pathways" class="btn btn--primary btn--sm">Reply via Email</a>
+          ${e.phone ? `<a href="https://wa.me/${String(e.phone).replace(/[^0-9]/g, '')}" target="_blank" class="btn btn--cta btn--sm">Chat on WhatsApp</a>` : ''}
         </div>
       `;
 
@@ -1581,21 +1610,23 @@
 
     /* ── PACKAGES CRUD ── */
     function renderPackagesTable() {
-      document.getElementById('admin-packages-table').innerHTML = currentPackages.map(p => `
+      document.getElementById('admin-packages-table').innerHTML = currentPackages.map(p => {
+        const idVal = p.id || p._id;
+        return `
         <tr>
           <td><img src="${getImageUrl(p.image)}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
-          <td><strong>${p.title}</strong><br><small style="color: #6b7280;">${p.tagline}</small></td>
+          <td><strong>${p.title}</strong><br><small style="color: #6b7280;">${p.tagline || ''}</small></td>
           <td>${p.duration} Days</td>
           <td><strong>$${p.price}</strong></td>
-          <td>${p.vehicle}</td>
+          <td>${p.vehicle || 'corolla'}</td>
           <td>
             <div class="flex gap-xs">
-              <button class="btn btn--outline btn--sm" onclick="window.editPackage('${p.id}')">Edit</button>
-              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deletePackageHandler('${p.id}')">Delete</button>
+              <button class="btn btn--outline btn--sm" onclick="window.editPackage('${idVal}')">Edit</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deletePackageHandler('${idVal}')">Delete</button>
             </div>
           </td>
         </tr>
-      `).join('');
+      `;}).join('');
     }
 
     document.getElementById('btn-add-package').addEventListener('click', () => {
@@ -1611,20 +1642,24 @@
     });
 
     window.editPackage = (id) => {
-      const p = currentPackages.find(x => x.id === id);
-      if (!p) return;
+      const targetId = String(id || '');
+      const p = currentPackages.find(x => String(x.id || '') === targetId || String(x._id || '') === targetId);
+      if (!p) {
+        console.warn('Package not found for id:', id);
+        return;
+      }
       document.getElementById('pkg-modal-title').textContent = `Edit Tour: ${p.title}`;
-      document.getElementById('pkg-id').value = p.id;
-      document.getElementById('pkg-title').value = p.title;
+      document.getElementById('pkg-id').value = p.id || p._id;
+      document.getElementById('pkg-title').value = p.title || '';
       document.getElementById('pkg-type').value = p.type || 'Cultural';
-      document.getElementById('pkg-tagline').value = p.tagline;
-      document.getElementById('pkg-duration').value = p.duration;
-      document.getElementById('pkg-price').value = p.price;
+      document.getElementById('pkg-tagline').value = p.tagline || '';
+      document.getElementById('pkg-duration').value = p.duration || 7;
+      document.getElementById('pkg-price').value = p.price || 0;
       document.getElementById('pkg-vehicle').value = p.vehicle || 'corolla';
-      document.getElementById('pkg-image').value = p.image;
-      document.getElementById('pkg-img-preview').src = getImageUrl(p.image);
+      document.getElementById('pkg-image').value = p.image || '';
+      document.getElementById('pkg-img-preview').src = getImageUrl(p.image || 'packages/cultural-triangle.jpg');
 
-      renderItineraryRows(p.itinerary || [
+      renderItineraryRows(p.itinerary && p.itinerary.length ? p.itinerary : [
         { day: 1, title: 'Day 1 Plan', description: 'Details' }
       ]);
 
@@ -1736,12 +1771,14 @@
 
     /* ── VEHICLES CRUD ── */
     function renderVehiclesTable() {
-      document.getElementById('admin-vehicles-table').innerHTML = currentVehicles.map(v => `
+      document.getElementById('admin-vehicles-table').innerHTML = currentVehicles.map(v => {
+        const idVal = v.id || v._id;
+        return `
         <tr>
           <td><img src="${getImageUrl(v.image)}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 8px; vertical-align: middle;"><strong>${v.name}</strong></td>
-          <td>${v.type}</td>
-          <td>${v.seats} Seats / ${v.luggage}</td>
-          <td><strong>$${v.pricePerDay}</strong> / day</td>
+          <td>${v.type || 'Standard'}</td>
+          <td>${v.seats || 4} Seats / ${v.luggage || ''}</td>
+          <td><strong>$${v.pricePerDay || 0}</strong> / day</td>
           <td>
             <span class="status-badge ${v.available !== false ? 'status-booked' : 'status-closed'}">
               ${v.available !== false ? 'Available' : 'Unavailable'}
@@ -1749,12 +1786,12 @@
           </td>
           <td>
             <div class="flex gap-xs">
-              <button class="btn btn--outline btn--sm" onclick="window.editVehicle('${v.id}')">Edit</button>
-              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteVehicleHandler('${v.id}')">Delete</button>
+              <button class="btn btn--outline btn--sm" onclick="window.editVehicle('${idVal}')">Edit</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteVehicleHandler('${idVal}')">Delete</button>
             </div>
           </td>
         </tr>
-      `).join('');
+      `;}).join('');
     }
 
     document.getElementById('btn-add-vehicle').addEventListener('click', () => {
@@ -1767,17 +1804,21 @@
     });
 
     window.editVehicle = (id) => {
-      const v = currentVehicles.find(x => x.id === id);
-      if (!v) return;
+      const targetId = String(id || '');
+      const v = currentVehicles.find(x => String(x.id || '') === targetId || String(x._id || '') === targetId);
+      if (!v) {
+        console.warn('Vehicle not found for id:', id);
+        return;
+      }
       document.getElementById('veh-modal-title').textContent = `Edit Vehicle: ${v.name}`;
-      document.getElementById('veh-id').value = v.id;
-      document.getElementById('veh-name').value = v.name;
-      document.getElementById('veh-type').value = v.type;
-      document.getElementById('veh-seats').value = v.seats;
-      document.getElementById('veh-luggage').value = v.luggage;
-      document.getElementById('veh-price').value = v.pricePerDay;
-      document.getElementById('veh-image').value = v.image;
-      document.getElementById('veh-img-preview').src = getImageUrl(v.image);
+      document.getElementById('veh-id').value = v.id || v._id;
+      document.getElementById('veh-name').value = v.name || '';
+      document.getElementById('veh-type').value = v.type || '';
+      document.getElementById('veh-seats').value = v.seats || 4;
+      document.getElementById('veh-luggage').value = v.luggage || '';
+      document.getElementById('veh-price').value = v.pricePerDay || 0;
+      document.getElementById('veh-image').value = v.image || '';
+      document.getElementById('veh-img-preview').src = getImageUrl(v.image || 'vehicles/prius.jpg');
       document.getElementById('veh-desc').value = v.description || '';
       document.getElementById('veh-available').checked = v.available !== false;
       document.getElementById('modal-vehicle').classList.add('open');
@@ -1850,20 +1891,22 @@
 
     /* ── DESTINATIONS CRUD ── */
     function renderDestinationsTable() {
-      document.getElementById('admin-destinations-table').innerHTML = currentDestinations.map(d => `
+      document.getElementById('admin-destinations-table').innerHTML = currentDestinations.map(d => {
+        const idVal = d.id || d._id;
+        return `
         <tr>
           <td><img src="${getImageUrl(d.image)}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 8px; vertical-align: middle;"><strong>${d.name}</strong></td>
-          <td>${d.region}</td>
-          <td>${d.typicalDuration}</td>
-          <td>${d.bestTime}</td>
+          <td>${d.region || 'Sri Lanka'}</td>
+          <td>${d.typicalDuration || '1 Day'}</td>
+          <td>${d.bestTime || 'Year-round'}</td>
           <td>
             <div class="flex gap-xs">
-              <button class="btn btn--outline btn--sm" onclick="window.editDestination('${d.id}')">Edit</button>
-              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteDestinationHandler('${d.id}')">Delete</button>
+              <button class="btn btn--outline btn--sm" onclick="window.editDestination('${idVal}')">Edit</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteDestinationHandler('${idVal}')">Delete</button>
             </div>
           </td>
         </tr>
-      `).join('');
+      `;}).join('');
     }
 
     document.getElementById('btn-add-destination').addEventListener('click', () => {
@@ -1879,16 +1922,20 @@
     });
 
     window.editDestination = (id) => {
-      const d = currentDestinations.find(x => x.id === id);
-      if (!d) return;
+      const targetId = String(id || '');
+      const d = currentDestinations.find(x => String(x.id || '') === targetId || String(x._id || '') === targetId);
+      if (!d) {
+        console.warn('Destination not found for id:', id);
+        return;
+      }
       document.getElementById('dest-modal-title').textContent = `Edit Destination: ${d.name}`;
-      document.getElementById('dest-id').value = d.id;
-      document.getElementById('dest-name').value = d.name;
-      document.getElementById('dest-region').value = d.region;
+      document.getElementById('dest-id').value = d.id || d._id;
+      document.getElementById('dest-name').value = d.name || '';
+      document.getElementById('dest-region').value = d.region || '';
       document.getElementById('dest-short').value = d.shortDesc || '';
       document.getElementById('dest-desc').value = d.description || '';
-      const lat = d.lat || 7.8731;
-      const lng = d.lng || 80.7718;
+      const lat = parseFloat(d.lat) || 7.8731;
+      const lng = parseFloat(d.lng) || 80.7718;
       document.getElementById('dest-lat').value = lat;
       document.getElementById('dest-lng').value = lng;
       document.getElementById('dest-duration').value = d.typicalDuration || '1 Day';
@@ -1980,7 +2027,9 @@
         return;
       }
 
-      tbody.innerHTML = currentTestimonials.map(t => `
+      tbody.innerHTML = currentTestimonials.map(t => {
+        const idVal = t.id || t._id;
+        return `
         <tr>
           <td>
             <img src="${getImageUrl(t.avatar)}" alt="${t.name}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0;">
@@ -1991,7 +2040,7 @@
             <span style="color: #f59e0b; font-size: 14px;">${'★'.repeat(t.rating || 5)}${'☆'.repeat(Math.max(0, 5 - (t.rating || 5)))}</span>
           </td>
           <td style="max-width: 320px; font-size: 12px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            "${t.text}"
+            "${t.text || ''}"
           </td>
           <td>
             <span class="status-badge ${t.featured !== false ? 'status-booked' : 'status-cancelled'}">
@@ -2000,12 +2049,12 @@
           </td>
           <td>
             <div class="flex gap-xs">
-              <button class="btn btn--outline btn--sm" onclick="window.editTestimonial('${t.id}')">Edit</button>
-              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteTestimonialHandler('${t.id}')">Delete</button>
+              <button class="btn btn--outline btn--sm" onclick="window.editTestimonial('${idVal}')">Edit</button>
+              <button class="btn btn--sm" style="color: #ef4444;" onclick="window.deleteTestimonialHandler('${idVal}')">Delete</button>
             </div>
           </td>
         </tr>
-      `).join('');
+      `;}).join('');
     }
 
     const btnAddTestimonial = document.getElementById('btn-add-testimonial');
@@ -2023,11 +2072,15 @@
     }
 
     window.editTestimonial = (id) => {
-      const t = currentTestimonials.find(x => x.id === id);
-      if (!t) return;
+      const targetId = String(id || '');
+      const t = currentTestimonials.find(x => String(x.id || '') === targetId || String(x._id || '') === targetId);
+      if (!t) {
+        console.warn('Testimonial not found for id:', id);
+        return;
+      }
       document.getElementById('testimonial-modal-title').textContent = `Edit Review: ${t.name}`;
-      document.getElementById('testimonial-id').value = t.id;
-      document.getElementById('testimonial-name').value = t.name;
+      document.getElementById('testimonial-id').value = t.id || t._id;
+      document.getElementById('testimonial-name').value = t.name || '';
       document.getElementById('testimonial-origin').value = t.origin || '';
       document.getElementById('testimonial-rating').value = t.rating || 5;
       document.getElementById('testimonial-order').value = t.order || 0;
@@ -2103,6 +2156,21 @@
         await loadAllData();
       }
     };
+
+    // Global backdrop click and Escape key dismissal for all modals
+    document.querySelectorAll('.admin-modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('open');
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.admin-modal.open').forEach(modal => modal.classList.remove('open'));
+      }
+    });
   </script>
 </body>
 </html>
