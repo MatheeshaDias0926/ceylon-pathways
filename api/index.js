@@ -14,9 +14,10 @@ export default async function handler(req, res) {
     }
   }
 
-  // Ensure req.url matches the /api prefix expected by routes in server.js
-  if (req.url && !req.url.startsWith('/api')) {
-    req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+  // Handle URL path resolution on Vercel
+  const targetUrl = req.originalUrl || req.url || '';
+  if (targetUrl) {
+    req.url = targetUrl.startsWith('/api') ? targetUrl : ('/api' + (targetUrl.startsWith('/') ? targetUrl : '/' + targetUrl));
   }
 
   return app(req, res);
