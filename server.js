@@ -88,6 +88,26 @@ const upload = multer({
 });
 
 /* ═════════════════════════════════════════════════════════════
+   SYSTEM / HEALTH API
+   ═════════════════════════════════════════════════════════════ */
+app.get('/api', (req, res) => {
+  res.json({
+    name: 'Ceylon Pathways API',
+    status: 'online',
+    database: isDBConnected() ? 'connected' : 'fallback',
+    version: '1.0.0'
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    database: isDBConnected() ? 'connected' : 'fallback',
+    timestamp: new Date().toISOString()
+  });
+});
+
+/* ═════════════════════════════════════════════════════════════
    PACKAGES API
    ═════════════════════════════════════════════════════════════ */
 app.get('/api/packages', async (req, res) => {
@@ -822,7 +842,7 @@ export async function startServer() {
 }
 
 // Only start the HTTP listener if not running in a serverless function
-if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+if (!process.env.NETLIFY && !process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   startServer();
 }
 
