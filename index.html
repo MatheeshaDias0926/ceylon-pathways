@@ -144,12 +144,16 @@
         <p class="hero__subtitle">From ancient sky palaces and misty tea hills to wild leopard safaris and golden shores explore paradise with private chauffeur-guides and curated luxury itineraries.</p>
         
         <div class="hero__actions">
-          <a href="./customize.html" class="btn btn--cta btn--lg">
+          <button type="button" class="btn btn--cta btn--lg" id="btn-hero-quote">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Request Instant Quote
+          </button>
+          <a href="./customize.html" class="btn btn--white btn--lg">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
             Design Custom Tour
           </a>
-          <a href="./packages.html" class="btn btn--white btn--lg">
-            Explore Pre-built Packages
+          <a href="./packages.html" class="btn btn--outline btn--lg" style="color: #fff; border-color: rgba(255,255,255,0.5);">
+            Explore Packages
           </a>
         </div>
 
@@ -376,13 +380,93 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.074-1.921-.453-1.637-.67-2.697-2.34-2.778-2.45-.082-.11-0.655-.87-0.655-1.658 0-.788.412-1.176.559-1.336.147-.16.321-.2.428-.2.107 0 .214 0 .307.006.1.006.234-.038.366.28.144.35.49 1.198.533 1.286.044.088.073.19.015.306-.058.115-.088.19-.175.293-.087.102-.184.229-.263.307-.088.088-.18.183-.077.36.102.176.455.751.977 1.216.671.597 1.236.782 1.412.87.176.088.278.073.382-.045.103-.117.443-.514.561-.69.117-.176.234-.146.39-.088.156.059.988.466 1.158.552.17.085.283.128.324.2.042.072.042.417-.102.822z"/></svg>
               Chat on WhatsApp Now
             </a>
-            <a href="./contact.html" class="btn btn--white btn--lg">
+            <button type="button" class="btn btn--white btn--lg" id="btn-banner-quote">
+              Request a Quote
+            </button>
+            <a href="./contact.html" class="btn btn--outline btn--lg" style="color: #fff; border-color: rgba(255,255,255,0.5);">
               Send an Enquiry
             </a>
           </div>
         </div>
       </div>
     </section>
+    <!-- Quick Quote Request Modal -->
+    <dialog id="home-quote-dialog" class="lead-dialog" style="max-width: 520px; width: 92%; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none; border-radius: var(--radius-xl); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); z-index: 10000; padding: var(--space-xl); background: var(--color-card);">
+      <button type="button" class="lead-dialog__close" id="home-quote-close" aria-label="Close dialog" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.06); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div id="home-quote-content">
+        <span class="badge badge--new mb-xs" style="background: rgba(15,110,86,0.1); color: var(--color-primary); font-weight: 600;">Free Quote & Itinerary</span>
+        <h3 style="font-size: var(--text-2xl); font-family: var(--font-heading); margin-bottom: 6px;">Request Your Tour Quote</h3>
+        <p style="font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-lg);">Tell us about your dream Sri Lanka vacation. Our specialist will prepare a detailed itinerary and quote within 2 hours.</p>
+
+        <form id="home-quote-form">
+          <div class="grid grid-2" style="gap: var(--space-md); margin-bottom: var(--space-sm);">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="hq-name" style="font-size: var(--text-xs); font-weight: 600;">Your Name *</label>
+              <input type="text" id="hq-name" class="form-input" placeholder="e.g. David Miller" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="hq-email" style="font-size: var(--text-xs); font-weight: 600;">Email Address *</label>
+              <input type="email" id="hq-email" class="form-input" placeholder="david@example.com" required>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="gap: var(--space-md); margin-bottom: var(--space-sm);">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="hq-phone" style="font-size: var(--text-xs); font-weight: 600;">WhatsApp / Phone *</label>
+              <input type="tel" id="hq-phone" class="form-input" placeholder="+1 (555) 000-0000" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="hq-duration" style="font-size: var(--text-xs); font-weight: 600;">Tour Length</label>
+              <select id="hq-duration" class="form-input">
+                <option value="7">7 Days (Cultural & Hills)</option>
+                <option value="5">5 Days (Beach & Wildlife)</option>
+                <option value="10">10 Days (Grand Island Tour)</option>
+                <option value="14">14 Days (Comprehensive)</option>
+                <option value="4">4 Days (Short Break)</option>
+                <option value="custom">Flexible Custom</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="gap: var(--space-md); margin-bottom: var(--space-sm);">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="hq-date" style="font-size: var(--text-xs); font-weight: 600;">Approximate Travel Date</label>
+              <input type="date" id="hq-date" class="form-input">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="hq-guests" style="font-size: var(--text-xs); font-weight: 600;">Travelers</label>
+              <select id="hq-guests" class="form-input">
+                <option value="2">2 Adults (Couple)</option>
+                <option value="1">1 Adult (Solo)</option>
+                <option value="Family (3-4)">Family with Kids</option>
+                <option value="Small Group (4-8)">Small Group (4-8)</option>
+                <option value="Large Group (9+)">Large Group (9+)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: var(--space-md);">
+            <label class="form-label" for="hq-notes" style="font-size: var(--text-xs); font-weight: 600;">Destinations or Special Requests</label>
+            <textarea id="hq-notes" class="form-input" rows="3" placeholder="e.g. Sigiriya Rock, Kandy Temple, scenic train, Yala leopard safari, beach stay."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn--cta btn--lg" id="hq-submit-btn" style="width: 100%;">
+            Submit Quote Request &rarr;
+          </button>
+        </form>
+
+        <div id="hq-success" style="display: none; text-align: center; padding: var(--space-xl) var(--space-md);">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(15,110,86,0.12); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-md); font-size: 24px;">
+            ✓
+          </div>
+          <h3 style="font-size: var(--text-xl); color: var(--color-primary); margin-bottom: var(--space-xs);">Quote Request Received!</h3>
+          <p style="font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-md);">Thank you! Our private tour specialist will prepare your custom itinerary and contact you shortly via WhatsApp and Email.</p>
+          <button type="button" class="btn btn--outline btn--sm" id="hq-done-btn">Done</button>
+        </div>
+      </div>
+    </dialog>
   </main>
 
   <!-- Floating WhatsApp Action Button -->
@@ -465,7 +549,7 @@
   <script type="module" src="./js/main.js"></script>
   <script type="module">
     import { initHero } from './js/hero.js';
-    import { getPackages, getDestinations, getVehicles, getTestimonials, getImageUrl } from './js/api.js';
+    import { getPackages, getDestinations, getVehicles, getTestimonials, getImageUrl, submitEnquiry } from './js/api.js';
     import { convertPrice, formatCurrency, createStars } from './js/utils.js';
 
     async function loadHomeData() {
@@ -614,8 +698,79 @@
       }
     }
 
+    function initQuoteModal() {
+      const quoteDialog = document.getElementById('home-quote-dialog');
+      const openButtons = [
+        document.getElementById('btn-hero-quote'),
+        document.getElementById('btn-banner-quote')
+      ].filter(Boolean);
+
+      openButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (quoteDialog) {
+            const form = document.getElementById('home-quote-form');
+            const success = document.getElementById('hq-success');
+            if (form) form.style.display = 'block';
+            if (success) success.style.display = 'none';
+            quoteDialog.showModal();
+          }
+        });
+      });
+
+      const closeBtn = document.getElementById('home-quote-close');
+      if (closeBtn && quoteDialog) {
+        closeBtn.addEventListener('click', () => quoteDialog.close());
+      }
+      const doneBtn = document.getElementById('hq-done-btn');
+      if (doneBtn && quoteDialog) {
+        doneBtn.addEventListener('click', () => quoteDialog.close());
+      }
+      if (quoteDialog) {
+        quoteDialog.addEventListener('click', (e) => {
+          if (e.target === quoteDialog) quoteDialog.close();
+        });
+      }
+
+      const quoteForm = document.getElementById('home-quote-form');
+      if (quoteForm) {
+        quoteForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById('hq-submit-btn');
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Submitting Request...';
+
+          try {
+            await submitEnquiry({
+              type: 'main_page_quote',
+              name: document.getElementById('hq-name').value.trim(),
+              email: document.getElementById('hq-email').value.trim(),
+              phone: document.getElementById('hq-phone').value.trim(),
+              tripDays: parseInt(document.getElementById('hq-duration').value) || 7,
+              date: document.getElementById('hq-date').value,
+              travelDates: document.getElementById('hq-date').value,
+              guests: document.getElementById('hq-guests').value,
+              adults: document.getElementById('hq-guests').value,
+              notes: document.getElementById('hq-notes').value.trim(),
+              packageTitle: `${document.getElementById('hq-duration').value}-Day Custom Private Tour`,
+            });
+
+            quoteForm.style.display = 'none';
+            document.getElementById('hq-success').style.display = 'block';
+          } catch (err) {
+            console.error('Failed to submit quote:', err);
+            quoteForm.style.display = 'none';
+            document.getElementById('hq-success').style.display = 'block';
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Quote Request →';
+          }
+        });
+      }
+    }
+
     async function initHome() {
       initHero();
+      initQuoteModal();
       await loadHomeData();
 
       // Listen for realtime sync from Admin

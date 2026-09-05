@@ -483,6 +483,17 @@
           if (addParam && destinations.some(d => d.id === addParam)) {
             selectedDestinations = [addParam];
           }
+          const destParam = urlParams.get('destination');
+          if (destParam) {
+            const cleanQuery = destParam.toLowerCase().trim();
+            const matched = destinations.find(d => 
+              d.name.toLowerCase().includes(cleanQuery) || 
+              d.id.toLowerCase().includes(cleanQuery)
+            );
+            if (matched) {
+              selectedDestinations = [matched.id];
+            }
+          }
           const templateParam = urlParams.get('template');
           if (templateParam) {
             const tPkg = packages.find(p => p.id === templateParam);

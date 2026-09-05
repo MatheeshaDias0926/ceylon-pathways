@@ -74,6 +74,18 @@ app.use(express.json({ limit: '10mb' }));
 app.use(sanitizeInput());
 app.use('/api/', apiLimiter());
 
+// Ensure MongoDB Atlas is connected before executing API routes
+app.use(async (req, res, next) => {
+  if (!isDBConnected() && process.env.MONGODB_URI) {
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error('MongoDB auto-connect error:', err.message);
+    }
+  }
+  next();
+});
+
 // Multer for file uploads (memory storage → Cloudinary)
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -399,11 +411,29 @@ app.get('/api/enquiries', async (req, res) => {
 
 app.post('/api/enquiries', async (req, res) => {
   try {
+    const b = req.body || {};
     const newEnq = {
       id: `ENQ-${Math.floor(1000 + Math.random() * 9000)}`,
       timestamp: new Date().toISOString(),
       status: 'new',
-      ...req.body
+      name: b.name || 'Traveler',
+      email: b.email || '',
+      phone: b.phone || '',
+      message: b.message || b.notes || '',
+      notes: b.notes || b.message || '',
+      packageId: b.packageId || '',
+      packageTitle: b.packageTitle || (b.tripDays ? `${b.tripDays}-Day Custom Tour` : ''),
+      travelDates: b.travelDates || b.date || '',
+      date: b.date || b.travelDates || '',
+      travelers: parseInt(b.travelers || b.guests || b.adults) || 1,
+      guests: b.guests || b.adults || '1',
+      adults: b.adults || b.guests || '1',
+      tripDays: parseInt(b.tripDays) || 7,
+      destinations: Array.isArray(b.destinations) ? b.destinations : [],
+      vehicle: b.vehicle || '',
+      hotelTier: b.hotelTier || '',
+      type: b.type || (b.packageId ? 'package' : 'custom_tour'),
+      ...b
     };
 
     if (isDBConnected()) {
@@ -416,6 +446,7 @@ app.post('/api/enquiries', async (req, res) => {
     writeJSON('enquiries.json', enquiries);
     res.status(201).json(newEnq);
   } catch (err) {
+    console.error('POST /api/enquiries error:', err);
     res.status(500).json({ error: 'Failed to submit enquiry' });
   }
 });

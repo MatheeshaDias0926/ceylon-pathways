@@ -1211,6 +1211,18 @@
         loadAllData();
       });
 
+      // Auto-refresh when switching back to tab or every 30s
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && isAuthenticated()) {
+          loadAllData();
+        }
+      });
+      setInterval(() => {
+        if (document.visibilityState === 'visible' && isAuthenticated()) {
+          loadAllData();
+        }
+      }, 30000);
+
       // Setup Image Upload Handlers
       setupImageUploads();
 
