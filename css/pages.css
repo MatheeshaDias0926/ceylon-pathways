@@ -444,6 +444,94 @@
   border: var(--border-light);
 }
 
+/* ── PACKAGE DETAIL (VIEW DAY-BY-DAY) SPACING ── */
+.package-detail__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl); /* 48px vertical gap between sections */
+}
+
+/* Transform Day-by-Day Itinerary into individual distinct cards with comfortable gaps */
+#itinerary-accordion,
+.itinerary-accordion {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-md) !important; /* 16px gap between day cards */
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+
+#itinerary-accordion .accordion__item,
+.itinerary-accordion .accordion__item {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  transition: border-color var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+#itinerary-accordion .accordion__item:hover,
+.itinerary-accordion .accordion__item:hover {
+  border-color: rgba(15, 110, 86, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07) !important;
+}
+
+#itinerary-accordion .accordion__trigger,
+.itinerary-accordion .accordion__trigger {
+  padding: var(--space-md) var(--space-lg) !important;
+  font-size: var(--text-base) !important;
+  font-weight: var(--weight-semibold) !important;
+  background: #ffffff !important;
+  border: none !important;
+}
+
+#itinerary-accordion .accordion__trigger:hover,
+.itinerary-accordion .accordion__trigger:hover {
+  background: rgba(15, 110, 86, 0.03) !important;
+}
+
+#itinerary-accordion .accordion__content-inner,
+.itinerary-accordion .accordion__content-inner {
+  padding: var(--space-sm) var(--space-lg) var(--space-lg) !important;
+  border-top: 1px dashed rgba(0, 0, 0, 0.08) !important;
+  color: var(--color-text-muted) !important;
+  line-height: 1.7 !important;
+}
+
+/* Inclusions & Exclusions Grid spacing */
+.pkg-inclusions-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: var(--space-xl) !important; /* 32px gap */
+}
+
+@media (max-width: 768px) {
+  .pkg-inclusions-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-lg) !important;
+  }
+}
+
+/* Tour Packages Listing Grid Spacing */
+#packages-grid-container {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: var(--space-2xl) var(--space-xl) !important; /* 48px row gap, 32px col gap */
+}
+
+@media (max-width: 900px) {
+  #packages-grid-container {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-xl) !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .package-detail {
     grid-template-columns: 1fr;

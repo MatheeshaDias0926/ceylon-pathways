@@ -290,12 +290,12 @@
                 </div>
               </div>
 
-              <div class="card__footer">
+              <div class="card__footer" style="gap: var(--space-md); flex-wrap: wrap;">
                 <div>
                   <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">starting from...</span>
                   <span class="card__price" data-usd="${pkg.price}">${convertPrice(pkg.price)} <small>/ person</small></span>
                 </div>
-                <div class="flex gap-xs">
+                <div class="flex gap-sm" style="flex-wrap: wrap;">
                   <a href="./package-detail.html?id=${pkg.id}" class="btn btn--outline btn--sm">View Day-by-Day</a>
                   <a href="./package-detail.html?id=${pkg.id}#enquire" class="btn btn--cta btn--sm">Enquire</a>
                 </div>
