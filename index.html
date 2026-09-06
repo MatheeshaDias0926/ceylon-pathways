@@ -643,10 +643,11 @@
             vehGrid.innerHTML = vehicles.filter(v => v.available !== false).slice(0, 6).map(veh => `
               <div class="card card--vehicle">
                 <div class="card__image-wrap">
-                  <img src="${getImageUrl(veh.image)}" alt="${veh.name}" class="card__image" loading="lazy">
+                  <span class="card__badge" style="background: rgba(15, 110, 86, 0.9);">${veh.type || 'Private Fleet'}</span>
+                  <img src="${getImageUrl(veh.image)}" alt="${veh.name}" class="card__image" loading="lazy" onerror="this.onerror=null;this.src='./images/vehicles/prius.jpg'">
                 </div>
                 <div class="card__body">
-                  <h3 class="card__title">${veh.name}</h3>
+                  <h3 class="card__title" title="${veh.name}">${veh.name}</h3>
                   <p class="card__desc">${veh.description || ''}</p>
                 </div>
                 <div class="card__specs">
