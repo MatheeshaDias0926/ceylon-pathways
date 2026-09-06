@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard & Operations Portal | Ceylon Pathways</title>
+  <title>Admin Dashboard & Operations Portal | Go Proud Sri Lanka</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -470,7 +470,7 @@
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
       </button>
-      <span class="admin-mobile-logo">Ceylon<span>Admin</span></span>
+      <span class="admin-mobile-logo">Go Proud<span>Admin</span></span>
     </div>
     <span id="admin-current-section-title" class="admin-mobile-active-tab">Dashboard</span>
   </header>
@@ -481,7 +481,7 @@
     <aside class="admin-sidebar">
       <div style="padding-bottom: var(--space-xl); border-bottom: 1px solid #374151; margin-bottom: var(--space-lg);">
         <a href="./index.html" style="color: #fff; font-family: var(--font-heading); font-size: var(--text-xl); text-decoration: none; font-weight: bold;">
-          Ceylon<span style="color: var(--color-cta);">Admin</span>
+          Go Proud<span style="color: var(--color-cta);">Admin</span>
         </a>
         <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">
           Role: <strong id="logged-user-role" style="color: #34d399;">Owner (All Perms)</strong>
@@ -772,9 +772,8 @@
         <div class="dashboard-header">
           <div>
             <h1 style="font-size: var(--text-2xl); font-family: var(--font-body); font-weight: 700; color: #0f172a; margin-bottom: 4px;">Staff Accounts & Roles</h1>
-            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Manage administrator permissions and operational staff access.</p>
+            <p style="font-size: var(--text-sm); color: #64748b; margin: 0;">Active authenticated user and operational access permissions.</p>
           </div>
-          <button class="btn btn--primary btn--sm" onclick="alert('Staff invite sent to email!');" style="padding: 0.6rem 1.25rem;">+ Invite Staff Account</button>
         </div>
 
         <div class="table-container">
@@ -788,20 +787,13 @@
                 <th>Status</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="staff-table-body">
               <tr>
-                <td><strong>Nimal Wickramasinghe</strong></td>
-                <td>owner@ceylonpathways.com</td>
+                <td><strong>Administrator (Owner)</strong><br><small style="color: #64748b;">@admin</small></td>
+                <td>admin@goproudsrilanka.com</td>
                 <td><span class="status-badge status-booked">Owner</span></td>
-                <td>Full CRUD, Financials, User Mgmt</td>
-                <td><span style="color: #10b981;">Active</span></td>
-              </tr>
-              <tr>
-                <td><strong>Dinesh Perera</strong></td>
-                <td>reservations@ceylonpathways.com</td>
-                <td><span class="status-badge status-new">Staff</span></td>
-                <td>Inquiries Inbox & WhatsApp Leads</td>
-                <td><span style="color: #10b981;">Active</span></td>
+                <td>Full Access (Tour Packages, Fleet, Destinations, Reviews, Enquiries Inbox)</td>
+                <td><span style="color: #10b981; font-weight: 600;">Active (Current User)</span></td>
               </tr>
             </tbody>
           </table>
@@ -1131,6 +1123,31 @@
     let pickerMap = null;
     let pickerMarker = null;
 
+    function renderStaffAccounts(currentUser) {
+      const user = currentUser || getCurrentUser() || { username: 'admin', role: 'owner', name: 'Administrator' };
+      const tbody = document.getElementById('staff-table-body');
+      if (!tbody) return;
+
+      const isOwner = (user.role || '').toLowerCase() === 'owner';
+      const displayName = user.name || (isOwner ? 'Administrator (Owner)' : 'Staff Operator');
+      const email = user.email || `${user.username || 'admin'}@goproudsrilanka.com`;
+      const roleTitle = isOwner ? 'Owner' : 'Staff';
+      const roleBadgeClass = isOwner ? 'status-booked' : 'status-new';
+      const permissions = isOwner 
+        ? 'Full Access (Tour Packages, Fleet, Destinations, Reviews, Enquiries Inbox)' 
+        : 'Lead Management (Inbound Enquiries & WhatsApp Leads)';
+
+      tbody.innerHTML = `
+        <tr>
+          <td><strong>${displayName}</strong><br><small style="color: #64748b;">@${user.username || 'admin'}</small></td>
+          <td>${email}</td>
+          <td><span class="status-badge ${roleBadgeClass}">${roleTitle}</span></td>
+          <td>${permissions}</td>
+          <td><span style="color: #10b981; font-weight: 600;">Active (Current User)</span></td>
+        </tr>
+      `;
+    }
+
     async function initAdmin() {
       // Auth Guard — Redirect to dedicated login page if not authenticated
       if (!isAuthenticated()) {
@@ -1145,6 +1162,7 @@
       if (user && roleLabel) {
         roleLabel.textContent = user.role === 'staff' ? 'Staff Operator (Lead Mgr)' : 'Owner (Full Access)';
       }
+      renderStaffAccounts(user);
 
       // Logout — clears JWT and redirects to login page
       if (logoutBtn) {
@@ -1600,7 +1618,7 @@
           <p style="background: #fff; padding: var(--space-sm); border: var(--border-light); border-radius: 4px; margin-top: 4px;">${e.notes || e.message || 'No additional notes provided.'}</p>
         </div>
         <div class="flex justify-between items-center">
-          <a href="mailto:${e.email || ''}?subject=Your Sri Lanka Tour with Ceylon Pathways" class="btn btn--primary btn--sm">Reply via Email</a>
+          <a href="mailto:${e.email || ''}?subject=Your Sri Lanka Tour with Go Proud Sri Lanka" class="btn btn--primary btn--sm">Reply via Email</a>
           ${e.phone ? `<a href="https://wa.me/${String(e.phone).replace(/[^0-9]/g, '')}" target="_blank" class="btn btn--cta btn--sm">Chat on WhatsApp</a>` : ''}
         </div>
       `;

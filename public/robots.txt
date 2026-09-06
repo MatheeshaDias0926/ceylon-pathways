@@ -4,4 +4,4 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /data/
 
-Sitemap: https://ceylonpathways.com/sitemap.xml
+Sitemap: https://goproudsrilanka.com/sitemap.xml

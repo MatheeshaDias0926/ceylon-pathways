@@ -104,7 +104,7 @@ const upload = multer({
    ═════════════════════════════════════════════════════════════ */
 app.get('/api', (req, res) => {
   res.json({
-    name: 'Ceylon Pathways API',
+    name: 'Go Proud Sri Lanka API',
     status: 'online',
     database: isDBConnected() ? 'connected' : 'fallback',
     version: '1.0.0'
@@ -509,7 +509,7 @@ const DEFAULT_TESTIMONIALS = [
     origin: 'London, United Kingdom',
     rating: 5,
     avatar: 'hero/beach.jpg',
-    text: 'Nimal was more than a chauffeur; he was a gracious host who made our honeymoon across Sigiriya and Galle absolutely magical. Exceptional service from Ceylon Pathways!',
+    text: 'Nimal was more than a chauffeur; he was a gracious host who made our honeymoon across Sigiriya and Galle absolutely magical. Exceptional service from Go Proud Sri Lanka!',
     featured: true,
     order: 1
   },
@@ -870,7 +870,7 @@ export async function startServer() {
 
   app.listen(PORT, () => {
     console.log(`\n===============================================`);
-    console.log(`Ceylon Pathways Backend API running on port ${PORT}`);
+    console.log(`Go Proud Sri Lanka Backend API running on port ${PORT}`);
     console.log(`Database: ${isDBConnected() ? '✅ MongoDB Atlas' : '⚠ JSON file fallback'}`);
     console.log(`Cloudinary: ${isCloudinaryConfigured() ? '✅ Configured' : '⚠ Local storage fallback'}`);
     console.log(`Public Site: http://localhost:${PORT}`);
