@@ -173,6 +173,64 @@
 }
 
 
+/* ── CAROUSEL WRAPPER & NAV BUTTONS ── */
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.carousel-nav-btn {
+  display: none; /* Hidden on mobile/tablets by default */
+}
+
+@media (min-width: 769px) {
+  .carousel-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
+    color: var(--color-primary);
+    cursor: pointer;
+    z-index: 25;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                background 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.25s ease;
+    outline: none;
+    padding: 0;
+    user-select: none;
+  }
+
+  .carousel-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+    color: var(--color-primary-dark);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .carousel-nav-btn:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .carousel-nav-btn--prev {
+    left: 4px;
+  }
+
+  .carousel-nav-btn--next {
+    right: 4px;
+  }
+}
+
 /* ── PACKAGES CAROUSEL (Homepage) ── */
 .packages-scroll {
   display: flex;
@@ -195,6 +253,7 @@
   min-width: 340px;
   flex-shrink: 0;
 }
+
 
 /* ── VEHICLES CAROUSEL (Homepage) ── */
 .vehicles-scroll {

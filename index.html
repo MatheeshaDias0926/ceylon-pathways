@@ -211,8 +211,18 @@
           <a href="./packages.html" class="btn btn--outline hide-mobile">View All Packages &rarr;</a>
         </div>
 
-        <div class="packages-scroll" id="packages-carousel-container">
-          <!-- Dynamically populated via JS -->
+        <div class="carousel-wrapper">
+          <button type="button" class="carousel-nav-btn carousel-nav-btn--prev" id="packages-scroll-prev" aria-label="Previous tour packages">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+
+          <div class="packages-scroll" id="packages-carousel-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+          <button type="button" class="carousel-nav-btn carousel-nav-btn--next" id="packages-scroll-next" aria-label="Next tour packages">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
 
         <div class="text-center mt-xl hide-desktop">
@@ -596,7 +606,7 @@
                 </div>
                 <div class="card__footer">
                   <div>
-                    <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Starting from</span>
+                    <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">starting from...</span>
                     <span class="card__price" data-usd="${pkg.price}">${convertPrice(pkg.price)} <small>/ person</small></span>
                   </div>
                   <div class="flex gap-xs">
@@ -606,6 +616,7 @@
                 </div>
               </div>
             `).join('');
+            setupCarouselNav('packages-carousel-container', 'packages-scroll-prev', 'packages-scroll-next');
           }
         }
       } catch (err) {
@@ -666,7 +677,7 @@
                 </div>
                 <div class="card__footer">
                   <div>
-                    <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Per Day Rate</span>
+                    <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">Per Day Rate From...</span>
                     <span class="card__price" data-usd="${veh.pricePerDay}">${convertPrice(veh.pricePerDay)} <small>/ day</small></span>
                   </div>
                   <a href="./customize.html?vehicle=${veh.id}" class="btn btn--cta btn--sm">Select Vehicle</a>
@@ -775,9 +786,61 @@
       }
     }
 
+    function setupCarouselNav(containerId, prevBtnId, nextBtnId) {
+      const container = document.getElementById(containerId);
+      const prevBtn = document.getElementById(prevBtnId);
+      const nextBtn = document.getElementById(nextBtnId);
+      if (!container || !prevBtn || !nextBtn) return;
+
+      const updateButtons = () => {
+        const maxScroll = container.scrollWidth - container.clientWidth;
+        if (maxScroll <= 5) {
+          prevBtn.style.opacity = '0';
+          prevBtn.style.pointerEvents = 'none';
+          nextBtn.style.opacity = '0';
+          nextBtn.style.pointerEvents = 'none';
+          return;
+        }
+        const current = container.scrollLeft;
+        if (current <= 10) {
+          prevBtn.style.opacity = '0.35';
+          prevBtn.style.pointerEvents = 'none';
+        } else {
+          prevBtn.style.opacity = '1';
+          prevBtn.style.pointerEvents = 'auto';
+        }
+
+        if (current >= maxScroll - 10) {
+          nextBtn.style.opacity = '0.35';
+          nextBtn.style.pointerEvents = 'none';
+        } else {
+          nextBtn.style.opacity = '1';
+          nextBtn.style.pointerEvents = 'auto';
+        }
+      };
+
+      prevBtn.onclick = () => {
+        container.scrollBy({ left: -365, behavior: 'smooth' });
+      };
+
+      nextBtn.onclick = () => {
+        container.scrollBy({ left: 365, behavior: 'smooth' });
+      };
+
+      if (!container.dataset.hasNavListener) {
+        container.dataset.hasNavListener = 'true';
+        container.addEventListener('scroll', updateButtons, { passive: true });
+        window.addEventListener('resize', updateButtons, { passive: true });
+      }
+
+      setTimeout(updateButtons, 100);
+      setTimeout(updateButtons, 400);
+    }
+
     async function initHome() {
       initHero();
       initQuoteModal();
+      setupCarouselNav('packages-carousel-container', 'packages-scroll-prev', 'packages-scroll-next');
       await loadHomeData();
 
       // Listen for realtime sync from Admin

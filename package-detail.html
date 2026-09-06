@@ -195,7 +195,7 @@
           <!-- Right Column: Sticky Booking & Enquiry Sidebar -->
           <aside class="package-detail__sidebar" id="book">
             <div class="package-detail__sidebar-card">
-              <span style="font-size: var(--text-xs); color: var(--color-text-light); text-transform: uppercase; display: block;">Fixed Price From</span>
+              <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">starting from...</span>
               <div class="card__price mb-md" id="sidebar-price" data-usd="899" style="font-size: var(--text-3xl);">$899 <small>/ person</small></div>
               
               <div style="background: rgba(15,110,86,0.06); padding: var(--space-sm); border-radius: var(--radius-sm); margin-bottom: var(--space-lg); font-size: var(--text-xs); color: var(--color-primary);">
@@ -439,7 +439,10 @@
                 <p class="card__desc">${rel.tagline}</p>
               </div>
               <div class="card__footer">
-                <span class="card__price" data-usd="${rel.price}">${convertPrice(rel.price)}</span>
+                <div>
+                  <span style="font-size: var(--text-xs); color: var(--color-text-light); display: block;">starting from...</span>
+                  <span class="card__price" data-usd="${rel.price}">${convertPrice(rel.price)} <small>/ person</small></span>
+                </div>
                 <a href="./package-detail.html?id=${rel.id}" class="btn btn--outline btn--sm">View Tour</a>
               </div>
             </div>
