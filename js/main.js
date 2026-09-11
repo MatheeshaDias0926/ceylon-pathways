@@ -72,10 +72,12 @@ function initNavbar() {
 
   // Mobile toggle
   if (toggle && links) {
-    toggle.addEventListener('click', () => {
-      toggle.classList.toggle('open');
-      links.classList.toggle('open');
-      document.body.style.overflow = links.classList.contains('open') ? 'hidden' : '';
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = toggle.classList.toggle('open');
+      links.classList.toggle('open', isOpen);
+      if (navbar) navbar.classList.toggle('menu-open', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
     });
 
     // Close on link click
@@ -83,6 +85,7 @@ function initNavbar() {
       link.addEventListener('click', () => {
         toggle.classList.remove('open');
         links.classList.remove('open');
+        if (navbar) navbar.classList.remove('menu-open');
         document.body.style.overflow = '';
       });
     });
@@ -95,6 +98,7 @@ function initNavbar() {
           !(mobileControls && mobileControls.contains(e.target))) {
         toggle.classList.remove('open');
         links.classList.remove('open');
+        if (navbar) navbar.classList.remove('menu-open');
         document.body.style.overflow = '';
       }
     });
