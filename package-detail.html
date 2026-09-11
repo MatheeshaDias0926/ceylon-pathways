@@ -69,8 +69,12 @@
         <a href="./about.html" class="navbar__link" data-i18n="nav_about">About Us</a>
         <a href="./blog.html" class="navbar__link" data-i18n="nav_blog">Travel Guides</a>
         <a href="./contact.html" class="navbar__link" data-i18n="nav_contact">Contact</a>
+        <div class="navbar__drawer-cta">
+          <a href="./customize.html" class="btn btn--cta" data-i18n="btn_plan_custom">Plan Custom Tour</a>
+        </div>
       </nav>
 
+      <!-- Desktop Actions (hidden on mobile) -->
       <div class="navbar__actions">
         <!-- Language Switcher -->
         <div class="navbar__currency">
@@ -84,6 +88,7 @@
           </select>
         </div>
 
+        <!-- Currency Switcher -->
         <div class="navbar__currency">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M17 10h-7a2.5 2.5 0 0 0 0 5h4a2.5 2.5 0 0 1 0 5H7"/></svg>
           <select id="currency-select" aria-label="Select Currency">
@@ -94,8 +99,30 @@
           </select>
         </div>
 
-        <a href="./customize.html" class="btn btn--cta btn--sm hide-mobile" data-i18n="btn_plan_custom">Plan Custom Tour</a>
+        <a href="./customize.html" class="btn btn--cta btn--sm" data-i18n="btn_plan_custom">Plan Custom Tour</a>
+      </div>
 
+      <!-- Mobile Controls (visible only on mobile) -->
+      <div class="navbar__mobile-controls">
+        <div class="navbar__currency">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <select id="lang-select-mobile" aria-label="Select Language">
+            <option value="en">EN</option>
+            <option value="de">DE</option>
+            <option value="fr">FR</option>
+            <option value="ru">RU</option>
+            <option value="zh">ZH</option>
+          </select>
+        </div>
+        <div class="navbar__currency">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M17 10h-7a2.5 2.5 0 0 0 0 5h4a2.5 2.5 0 0 1 0 5H7"/></svg>
+          <select id="currency-select-mobile" aria-label="Select Currency">
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="LKR">LKR (Rs)</option>
+          </select>
+        </div>
         <button class="navbar__toggle" id="nav-toggle" aria-label="Toggle navigation menu">
           <span></span>
           <span></span>

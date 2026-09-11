@@ -34,12 +34,25 @@ if (document.readyState === 'loading') {
 }
 
 function initLanguageToggle() {
-  const select = document.getElementById('lang-select');
-  if (!select) return;
-  select.value = getLanguage();
-  select.addEventListener('change', (e) => {
-    setLanguage(e.target.value);
-  });
+  const desktopSelect = document.getElementById('lang-select');
+  const mobileSelect = document.getElementById('lang-select-mobile');
+  const currentLang = getLanguage();
+
+  if (desktopSelect) {
+    desktopSelect.value = currentLang;
+    desktopSelect.addEventListener('change', (e) => {
+      setLanguage(e.target.value);
+      if (mobileSelect) mobileSelect.value = e.target.value;
+    });
+  }
+
+  if (mobileSelect) {
+    mobileSelect.value = currentLang;
+    mobileSelect.addEventListener('change', (e) => {
+      setLanguage(e.target.value);
+      if (desktopSelect) desktopSelect.value = e.target.value;
+    });
+  }
 }
 
 
@@ -48,7 +61,7 @@ function initNavbar() {
   const navbar = document.querySelector('.navbar');
   const toggle = document.querySelector('.navbar__toggle');
   const links = document.querySelector('.navbar__links');
-  const actions = document.querySelector('.navbar__actions');
+  const mobileControls = document.querySelector('.navbar__mobile-controls');
 
   // Scroll effect
   if (navbar) {
@@ -62,7 +75,6 @@ function initNavbar() {
     toggle.addEventListener('click', () => {
       toggle.classList.toggle('open');
       links.classList.toggle('open');
-      if (actions) actions.classList.toggle('open');
       document.body.style.overflow = links.classList.contains('open') ? 'hidden' : '';
     });
 
@@ -71,17 +83,18 @@ function initNavbar() {
       link.addEventListener('click', () => {
         toggle.classList.remove('open');
         links.classList.remove('open');
-        if (actions) actions.classList.remove('open');
         document.body.style.overflow = '';
       });
     });
 
     // Close when clicking outside menu
     document.addEventListener('click', (e) => {
-      if (links.classList.contains('open') && !links.contains(e.target) && !toggle.contains(e.target)) {
+      if (links.classList.contains('open') &&
+          !links.contains(e.target) &&
+          !toggle.contains(e.target) &&
+          !(mobileControls && mobileControls.contains(e.target))) {
         toggle.classList.remove('open');
         links.classList.remove('open');
-        if (actions) actions.classList.remove('open');
         document.body.style.overflow = '';
       }
     });
@@ -126,22 +139,36 @@ function initWhatsAppFAB() {
 
 /* ── Currency Toggle ── */
 function initCurrencyToggle() {
-  const select = document.getElementById('currency-select');
-  if (!select) return;
+  const desktopSelect = document.getElementById('currency-select');
+  const mobileSelect = document.getElementById('currency-select-mobile');
+  const currentCurrency = getCurrency();
 
-  // Set initial value
-  select.value = getCurrency();
+  if (desktopSelect) {
+    desktopSelect.value = currentCurrency;
+    desktopSelect.addEventListener('change', (e) => {
+      setCurrency(e.target.value);
+      if (mobileSelect) mobileSelect.value = e.target.value;
+      updateAllPrices();
+    });
+  }
 
-  select.addEventListener('change', (e) => {
-    setCurrency(e.target.value);
-    // Update all price elements on page
-    updateAllPrices();
-  });
+  if (mobileSelect) {
+    mobileSelect.value = currentCurrency;
+    mobileSelect.addEventListener('change', (e) => {
+      setCurrency(e.target.value);
+      if (desktopSelect) desktopSelect.value = e.target.value;
+      updateAllPrices();
+    });
+  }
 
   // Listen for currency change events
   document.addEventListener('currency-change', () => {
-    if (select.value !== getCurrency()) {
-      select.value = getCurrency();
+    const curr = getCurrency();
+    if (desktopSelect && desktopSelect.value !== curr) {
+      desktopSelect.value = curr;
+    }
+    if (mobileSelect && mobileSelect.value !== curr) {
+      mobileSelect.value = curr;
     }
     updateAllPrices();
   });
