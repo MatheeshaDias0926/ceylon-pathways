@@ -5,8 +5,8 @@ const contentSchema = new mongoose.Schema({
   headline: { type: String, default: 'Discover the Wonder of Sri Lanka' },
   subTagline: { type: String, default: 'Private Tours · Expert Guides · Bespoke Itineraries' },
   modalText: { type: String, default: '' },
-  email: { type: String, default: 'info@goproudsrilanka.com' },
-  whatsapp: { type: String, default: '+94XXXXXXXXX' }
+  email: { type: String, default: 'goproudsrilanka@gmail.com' },
+  whatsapp: { type: String, default: '+94742335545' }
 }, { timestamps: true });
 
 export default mongoose.model('Content', contentSchema);

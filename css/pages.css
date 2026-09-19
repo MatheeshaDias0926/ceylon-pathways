@@ -1098,6 +1098,11 @@ main:has(.package-hero) {
     min-width: 20px !important;
   }
 
+  .navbar__logo img {
+    height: 28px !important;
+    width: auto !important;
+  }
+
   /* ── Packages & Vehicles Swiper Carousel ── */
   .packages-scroll {
     gap: 1rem;

@@ -180,7 +180,7 @@ export function initCurrency() {
  * Generate a WhatsApp URL with context-aware pre-filled message
  */
 export function getWhatsAppURL(contextMessage = '') {
-  const phone = '94XXXXXXXXX'; // Replace with actual business number
+  const phone = '94742335545';
   const defaultMsg = 'Hi! I\'m interested in your Sri Lanka tour packages.';
   const message = contextMessage || defaultMsg;
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;

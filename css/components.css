@@ -202,6 +202,12 @@
     letter-spacing: -0.01em !important;
   }
 
+  .navbar__logo img {
+    height: 28px !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
+  }
+
   .navbar__logo svg {
     width: 20px !important;
     height: 20px !important;
